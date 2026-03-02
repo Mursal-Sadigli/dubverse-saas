@@ -1,9 +1,18 @@
 import { spawn } from "child_process";
+import os from "os";
 import ffmpegStatic from "ffmpeg-static";
 import { join } from "path";
 import { existsSync, mkdirSync, appendFileSync } from "fs";
 
 export function getFfmpegBin(): string {
+  const isWindows = os.platform() === 'win32';
+  const binName = isWindows ? 'ffmpeg.exe' : 'ffmpeg';
+  const binPath = join(process.cwd(), 'node_modules', 'ffmpeg-static', binName);
+  
+  if (existsSync(binPath)) {
+    return binPath;
+  }
+  
   let bin = ffmpegStatic;
   if (!bin) return "ffmpeg";
   if (bin.includes("\\ROOT\\")) {

@@ -1,0 +1,4 @@
+[2026-03-02T15:43:09.181Z] Pipeline process started.
+[2026-03-02T15:43:09.189Z] Downloading YouTube: https://youtube.com/shorts/Xqdlp_XDI4k?si=amPoQ-s90ZxI9CDX
+[2026-03-02T15:43:14.019Z] YouTube download completed.
+[2026-03-02T15:43:14.023Z] Extracting audio with FFmpeg...

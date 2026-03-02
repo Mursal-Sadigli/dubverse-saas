@@ -1,135 +1,116 @@
 "use client";
 
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { Project } from "@/lib/types";
-import { getStatusLabel, formatDate, cn } from "@/lib/utils";
-import { Film, ChevronRight, Clock, Globe, ArrowRight } from "lucide-react";
+import { 
+  Play, 
+  Calendar, 
+  Languages, 
+  MoreVertical, 
+  ExternalLink,
+  Clock,
+  CheckCircle2,
+  AlertCircle
+} from "lucide-react";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Card } from "@/components/ui/card";
-import { useTranslations } from "next-intl";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 interface ProjectCardProps {
   project: Project;
-  layout?: "grid" | "list";
 }
 
+const statusConfig = {
+  pending: { icon: Clock, class: "bg-amber-500/10 text-amber-500 border-amber-500/20", label: "Pending" },
+  uploading: { icon: Clock, class: "bg-blue-500/10 text-blue-500 border-blue-500/20", label: "Uploading" },
+  transcribing: { icon: Play, class: "bg-violet-500/10 text-violet-500 border-violet-500/20", label: "Transcribing" },
+  translating: { icon: Languages, class: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20", label: "Translating" },
+  dubbing: { icon: Play, class: "bg-fuchsia-500/10 text-fuchsia-500 border-fuchsia-500/20", label: "Dubbing" },
+  completed: { icon: CheckCircle2, class: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20", label: "Completed" },
+  failed: { icon: AlertCircle, class: "bg-red-500/10 text-red-500 border-red-500/20", label: "Failed" }
+};
 
-const stepOrder = ["uploading", "transcribing", "translating", "dubbing", "completed"];
-
-function getProgressPercent(status: string): number {
-  const idx = stepOrder.indexOf(status);
-  if (idx === -1) return 0;
-  return Math.round((idx / (stepOrder.length - 1)) * 100);
-}
-
-export default function ProjectCard({ project, layout = "grid" }: ProjectCardProps) {
-  const t = useTranslations("dashboard");
-  const progressPercent = getProgressPercent(project.status);
-  const isProcessing = !["completed", "failed"].includes(project.status);
-
-  if (layout === "list") {
-    return (
-      <Link href={`/projects/${project.id}`} className="block">
-        <Card className="glass group px-6 py-4 flex items-center justify-between hover:bg-zinc-500/10 transition-colors border-none">
-          <div className="flex items-center gap-4 min-w-0 flex-1">
-             <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/10">
-                <Film className="size-5 text-violet-500" />
-             </div>
-             <div className="min-w-0 flex-1">
-                <h3 className="font-bold truncate">{project.name}</h3>
-                <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                   <Globe className="size-3" />
-                   {project.sourceLanguage.toUpperCase()} → {project.targetLanguage.toUpperCase()}
-                   <span className="mx-1.5">•</span>
-                   <Clock className="size-3" />
-                   {formatDate(project.createdAt)}
-                </p>
-             </div>
-          </div>
-          
-          <div className="flex items-center gap-6">
-             {isProcessing && (
-                <div className="hidden md:flex flex-col items-end gap-1.5 w-32">
-                   <span className="text-[10px] uppercase font-bold text-violet-500 tracking-wider">Processing</span>
-                   <Progress value={progressPercent} className="h-1" />
-                </div>
-             )}
-             <Badge
-                variant={
-                  project.status === "completed" ? "success" : 
-                  project.status === "failed" ? "destructive" : 
-                  "processing"
-                }
-                className="h-7 px-3 rounded-lg"
-              >
-                {common(`status.${project.status}`)}
-              </Badge>
-              <ArrowRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
-          </div>
-        </Card>
-      </Link>
-    );
-  }
+export default function ProjectCard({ project }: ProjectCardProps) {
+  const status = statusConfig[project.status as keyof typeof statusConfig] || statusConfig.pending;
+  const StatusIcon = status.icon;
 
   return (
-    <Link href={`/projects/${project.id}`} className="block">
-      <Card className="glass glass-hover group flex flex-col gap-4 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-500/10 border-none rounded-3xl">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-1 items-center gap-3">
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-violet-500/10 transition-colors group-hover:bg-violet-500/20">
-              <Film className="size-5 text-violet-500" />
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-[15px] font-bold text-foreground">
-                {project.name}
-              </p>
-              <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Globe className="size-3 text-violet-400" />
-                <span className="uppercase font-medium tracking-wider">{project.sourceLanguage}</span>
-                <ChevronRight className="size-2.5 opacity-30" />
-                <span className="uppercase font-medium tracking-wider text-violet-400">{project.targetLanguage}</span>
-              </div>
-            </div>
-          </div>
-
-          <Badge
-            variant={
-              project.status === "completed" ? "success" : 
-              project.status === "failed" ? "destructive" : 
-              "processing"
-            }
-            className="rounded-lg px-2.5"
-          >
-            {isProcessing && (
-              <span className="inline-block size-1.5 animate-pulse rounded-full bg-current mr-1.5" />
-            )}
-            {common(`status.${project.status}`)}
-          </Badge>
-        </div>
-
-        {isProcessing && (
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider text-violet-500">
-               <span>{project.status}</span>
-               <span>{progressPercent}%</span>
-            </div>
-            <Progress value={progressPercent} className="h-1.5" />
+    <Card className="glass group overflow-hidden border-zinc-500/10 hover:border-violet-500/30 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-violet-500/5">
+      <CardContent className="p-0 relative aspect-video bg-zinc-900 overflow-hidden">
+        {project.thumbnailUrl ? (
+          <img 
+            src={project.thumbnailUrl} 
+            alt={project.name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-60"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-violet-500/20 to-blue-500/20 group-hover:from-violet-500/30 transition-colors">
+            <Play className="size-12 text-violet-500/40 group-hover:scale-110 transition-transform" />
           </div>
         )}
-
-        <div className="mt-auto pt-2 flex items-center justify-between">
-           <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
-             <Clock className="size-3" />
-             {formatDate(project.createdAt)}
-           </div>
-           <Button variant="ghost" size="sm" className="size-8 p-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-              <ArrowRight className="size-4 text-violet-500" />
+        
+        {/* Play Overlay */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-[2px]">
+           <Button variant="premium" size="icon" className="size-12 rounded-full shadow-2xl scale-75 group-hover:scale-100 transition-transform duration-300" asChild>
+             <Link href={`/projects/${project.id}`}>
+               <Play className="size-6 fill-current" />
+             </Link>
            </Button>
         </div>
-      </Card>
-    </Link>
+
+        {/* Badges */}
+        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+          <Badge className={cn("rounded-lg font-bold border-none shadow-sm flex items-center gap-1.5 px-2.5 py-1", status.class)}>
+            <StatusIcon className="size-3" />
+            {status.label}
+          </Badge>
+          <Badge variant="secondary" className="bg-black/40 backdrop-blur-md text-white border-white/10 rounded-lg font-bold">
+            <Languages className="size-3 mr-1" />
+            {project.targetLanguage}
+          </Badge>
+        </div>
+      </CardContent>
+
+      <CardFooter className="p-5 flex flex-col items-start gap-4">
+        <div className="flex items-start justify-between w-full gap-2">
+          <div className="min-w-0">
+            <h3 className="font-bold text-base truncate group-hover:text-violet-500 transition-colors">{project.name}</h3>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1 font-medium italic">
+              <Calendar className="size-3" />
+              {new Date(project.updatedAt).toLocaleDateString()}
+            </div>
+          </div>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="size-8 rounded-lg">
+                <MoreVertical className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="glass border-none shadow-xl rounded-xl p-1 min-w-[160px]">
+              <DropdownMenuItem className="rounded-lg cursor-pointer font-medium" asChild>
+                <Link href={`/projects/${project.id}`} className="flex items-center gap-2">
+                  <ExternalLink className="size-4" /> Open Project
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="rounded-lg cursor-pointer font-medium text-red-500 focus:text-red-500 focus:bg-red-500/10">
+                Delete Project
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </CardFooter>
+    </Card>
   );
 }
 
+// Utility function for cn should be imported or defined
+function cn(...classes: any[]) {
+  return classes.filter(Boolean).join(' ');
+}

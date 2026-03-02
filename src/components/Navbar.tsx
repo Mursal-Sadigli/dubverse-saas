@@ -1,57 +1,72 @@
 "use client";
 
-import { Link } from "@/i18n/navigation";
-import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
-import { Mic2 } from "lucide-react";
+import Link from "next/link";
+import { useUser, UserButton, SignInButton, SignUpButton } from "@clerk/nextjs";
+import { Mic2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { useTranslations } from "next-intl";
+import { ThemeToggle } from "./ThemeToggle";
+import Sidebar from "@/components/Sidebar";
+import MobileNav from "@/components/MobileNav";
 
 export default function Navbar() {
-  const t = useTranslations("common");
+  const { isLoaded, isSignedIn } = useUser();
 
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 border-b border-foreground/5 bg-background/80 backdrop-blur-xl">
-      <div className="container flex h-16 items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-90">
-          <div className="flex size-9 items-center justify-center rounded-xl bg-linear-to-br from-violet-600 to-blue-600 shadow-[0_0_20px_rgba(139,92,246,0.4)]">
-            <Mic2 className="size-4.5 text-white" />
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b bg-background/80 backdrop-blur-xl">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 text-2xl font-black italic group p-2">
+          <Mic2 className="size-6 text-violet-600 transition-transform group-hover:scale-110" />
+          <div className="flex">
+            <span className="text-violet-600 tracking-tighter">DUB</span>
+            <span className="tracking-tighter">VERSE</span>
           </div>
-          <span className="text-lg font-bold tracking-tight text-foreground">
-            Dub<span className="text-violet-500">verse</span>
-          </span>
         </Link>
 
-        {/* Right Nav */}
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <LanguageSwitcher />
+        {/* Desktop Nav */}
+        <div className="hidden md:flex items-center gap-6">
+          <Link href="#features" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest">
+            Features
+          </Link>
+          <Link href="#pricing" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest">
+            Pricing
+          </Link>
           
-          <SignedOut>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/sign-in">{t("signIn")}</Link>
-            </Button>
-            <Button variant="premium" size="sm" asChild>
-              <Link href="/sign-up">{t("startFree")}</Link>
-            </Button>
-          </SignedOut>
-          <SignedIn>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/dashboard">{t("dashboard")}</Link>
-            </Button>
-            <UserButton
-              appearance={{
-                elements: {
-                  avatarBox: "size-9 rounded-xl",
-                },
-              }}
-            />
-          </SignedIn>
+          <div className="h-6 w-px bg-border mx-2" />
+          
+          <ThemeToggle />
+
+          {!isLoaded ? (
+            <div className="h-9 w-24 bg-muted animate-pulse rounded-lg" />
+          ) : isSignedIn ? (
+            <div className="flex items-center gap-4">
+              <Button variant="premium" size="sm" className="h-9 px-4 rounded-xl font-bold shadow-lg" asChild>
+                <Link href="/dashboard">
+                  <Plus className="mr-2 size-4" />
+                  New Dub
+                </Link>
+              </Button>
+              <UserButton afterSignOutUrl="/" />
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <SignInButton mode="modal">
+                <Button variant="ghost" className="font-bold rounded-xl h-9">Log In</Button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <Button className="font-bold bg-violet-600 hover:bg-violet-700 rounded-xl h-9 shadow-lg shadow-violet-500/10">
+                  Get Started
+                </Button>
+              </SignUpButton>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile Nav */}
+        <div className="flex md:hidden items-center gap-2">
+           <ThemeToggle />
+           <MobileNav />
         </div>
       </div>
     </nav>
   );
 }
-

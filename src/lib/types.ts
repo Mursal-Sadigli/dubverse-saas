@@ -30,6 +30,7 @@ export type Project = {
   updatedAt: string;
   error?: string;
   youtubeUrl?: string;
+  thumbnailUrl?: string;
 };
 
 export const SUPPORTED_LANGUAGES: TargetLanguage[] = [
