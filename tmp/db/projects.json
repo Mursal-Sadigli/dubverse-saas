@@ -107,6 +107,72 @@
       "audioPath": "C:\\Users\\fullm\\Downloads\\dubverse-saas\\tmp\\uploads\\99c89922-114a-4fc9-944c-769ae9eb6c39\\audio.mp3",
       "dubbedAudioPath": "C:\\Users\\fullm\\Downloads\\dubverse-saas\\tmp\\uploads\\99c89922-114a-4fc9-944c-769ae9eb6c39\\dubbed_audio.mp3",
       "finalVideoPath": "C:\\Users\\fullm\\Downloads\\dubverse-saas\\tmp\\uploads\\99c89922-114a-4fc9-944c-769ae9eb6c39\\final_dubbed.mp4"
+    },
+    "50ece4d4-7743-475c-b4e7-9cc90be49d37": {
+      "id": "50ece4d4-7743-475c-b4e7-9cc90be49d37",
+      "name": "trump",
+      "userId": "user_3AMLwUKWbCAgECjMqAb7V5idQmF",
+      "status": "completed",
+      "sourceLanguage": "en",
+      "targetLanguage": "tr",
+      "videoPath": "C:\\Users\\fullm\\Downloads\\dubverse-saas\\tmp\\uploads\\50ece4d4-7743-475c-b4e7-9cc90be49d37\\video.mp4",
+      "subtitles": [
+        {
+          "id": "a44671cf-43e7-471e-9272-1d307a0fe1cd",
+          "start": 0,
+          "end": 6.2,
+          "text": "We're ensuring that the Iranian regime cannot continue to arm, fund, and direct terrorist",
+          "translatedText": "İran rejiminin sınırları dışında terör ordularını silahlandırmasını, finanse etmesini ve yönlendirmesini engellemek için çalışıyoruz."
+        },
+        {
+          "id": "cb0906e7-3df2-4c33-9da7-5258c04a065d",
+          "start": 6.2,
+          "end": 11.4,
+          "text": "armies outside of their borders. And we thought we had a deal, but then they backed out.",
+          "translatedText": "Ve bir anlaşma yaptığımızı düşündük, ama sonra geri çekildiler."
+        },
+        {
+          "id": "549ee704-6f8f-4222-b97e-8fba7d131530",
+          "start": 11.98,
+          "end": 15.2,
+          "text": "And they came back, and we thought we had a deal, and they backed out. I said,",
+          "translatedText": "Ve geri geldiler ve bir anlaşma yaptığımızı düşündük, ama yine geri çekildiler. Dedim ki,"
+        },
+        {
+          "id": "5d352823-8f4c-4a5b-94dc-2a5c27971aee",
+          "start": 15.26,
+          "end": 19.76,
+          "text": "you can't deal with these people. Our president will start a war with Iran",
+          "translatedText": "bu insanlarla anlaşma yapamazsınız. Başkanımız İran'la bir savaş başlatacak"
+        },
+        {
+          "id": "a5b7f9cb-5a7e-4d46-b844-f8dd7dc586f3",
+          "start": 19.76,
+          "end": 25.52,
+          "text": "because he has absolutely no ability to negotiate. He's weak, and he's ineffective.",
+          "translatedText": "çünkü tamamen negociye etme yeteneğinden yoksun. Zayıftır ve etkisizdir."
+        },
+        {
+          "id": "961497eb-4cd8-42b4-b7c5-1998c9ce4f5f",
+          "start": 25.52,
+          "end": 31.04,
+          "text": "Unfortunately, we have a president that doesn't know the first thing about negotiation.",
+          "translatedText": "Maalesef negociasyon konusunda ilk şeyden bile haberi olmayan bir başkana sahibiz."
+        },
+        {
+          "id": "50ca2784-c5a9-4b1c-b68e-5bd701f0c07c",
+          "start": 31.04,
+          "end": 33.08,
+          "text": "We have a real problem in the White House.",
+          "translatedText": "Beyaz Saray'da gerçek bir sorunumuz var."
+        }
+      ],
+      "createdAt": "2026-03-02T18:42:46.658Z",
+      "updatedAt": "2026-03-02T18:43:45.928Z",
+      "youtubeUrl": "https://youtube.com/shorts/90-7ISyQWuA?si=ZZBFt96hrYzzCYQp",
+      "audioPath": "C:\\Users\\fullm\\Downloads\\dubverse-saas\\tmp\\uploads\\50ece4d4-7743-475c-b4e7-9cc90be49d37\\audio.mp3",
+      "dubbedAudioPath": "C:\\Users\\fullm\\Downloads\\dubverse-saas\\tmp\\uploads\\50ece4d4-7743-475c-b4e7-9cc90be49d37\\dubbed_audio.mp3",
+      "finalVideoPath": "C:\\Users\\fullm\\Downloads\\dubverse-saas\\tmp\\uploads\\50ece4d4-7743-475c-b4e7-9cc90be49d37\\final_dubbed.mp4"
     }
   }
 }

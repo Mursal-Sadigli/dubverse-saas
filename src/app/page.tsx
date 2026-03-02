@@ -46,7 +46,7 @@ export default function LandingPage() {
                 </Button>
               </div>
               
-              <div className="mt-16 flex items-center justify-center gap-8 grayscale opacity-50 grayscale-0 opacity-100 transition-all">
+              <div className="mt-16 flex items-center justify-center gap-8 grayscale-0 opacity-100 transition-all">
                  <div className="flex items-center gap-2 font-bold text-xl"><Zap className="text-violet-500" /> FastInference</div>
                  <div className="flex items-center gap-2 font-bold text-xl"><Mic2 className="text-violet-500" /> VoiceFlow</div>
                  <div className="flex items-center gap-2 font-bold text-xl"><Globe className="text-violet-500" /> GlobalSync</div>
@@ -59,50 +59,6 @@ export default function LandingPage() {
              <div className="absolute top-24 left-1/4 w-96 h-96 bg-violet-500/20 rounded-full blur-[128px] animate-pulse"></div>
              <div className="absolute bottom-24 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[128px] animate-pulse" style={{ animationDelay: '1s' }}></div>
           </div>
-        </section>
-
-        {/* Features Section */}
-        <section id="features" className="py-24 bg-zinc-500/5">
-          <div className="container px-4 mx-auto">
-            <div className="text-center max-w-2xl mx-auto mb-20">
-              <h2 className="text-3xl lg:text-5xl font-black mb-6">Everything you need to go global</h2>
-              <p className="text-muted-foreground text-lg">Our integrated pipeline handles the entire process from speech to final video.</p>
-            </div>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {FEATURES.map((feature, i) => (
-                <div key={i} className="glass p-8 rounded-3xl group hover:-translate-y-2 transition-all duration-300 border-none shadow-sm hover:shadow-xl hover:shadow-violet-500/5">
-                  <div className={`size-14 rounded-2xl flex items-center justify-center mb-6 bg-violet-500/10 text-violet-500 group-hover:bg-violet-500 group-hover:text-white transition-colors`}>
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-24">
-           <div className="container px-4 mx-auto">
-              <div className="bg-linear-to-br from-violet-600 to-blue-700 rounded-[3rem] p-12 lg:p-24 text-center text-white relative overflow-hidden shadow-2xl shadow-violet-500/20">
-                 <div className="relative z-10 max-w-3xl mx-auto">
-                    <h2 className="text-4xl lg:text-6xl font-black mb-8 leading-tight">Ready to break the language barrier?</h2>
-                    <p className="text-xl text-white/80 mb-12">Join thousands of creators who are reaching new audiences every day.</p>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                       <Button size="lg" variant="secondary" className="h-16 px-10 rounded-2xl text-xl font-black shadow-lg hover:scale-105 transition-transform" asChild>
-                          <Link href="/dashboard">Start Your First Project</Link>
-                       </Button>
-                       <p className="text-sm font-medium text-white/60">No credit card required for free tier</p>
-                    </div>
-                 </div>
-                 
-                 {/* Decorative circles */}
-                 <div className="absolute top-0 left-0 w-64 h-64 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
-                 <div className="absolute bottom-0 right-0 w-96 h-96 bg-black/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
-              </div>
-           </div>
         </section>
       </main>
 
@@ -125,36 +81,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-const FEATURES = [
-  {
-    icon: <Mic2 className="size-7" />,
-    title: "AI Voice Models",
-    description: "Access premium neural voices that capture emotion and inflection perfectly across 50+ languages.",
-  },
-  {
-    icon: <Zap className="size-7" />,
-    title: "Instant Processing",
-    description: "Our LPU-powered pipeline delivers high-quality dubs faster than real-time video length.",
-  },
-  {
-    icon: <Globe className="size-7" />,
-    title: "Global Distribution",
-    description: "Direct export to various formats optimized for YouTube, TikTok, and social media platforms.",
-  },
-  {
-    icon: <Layers className="size-7" />,
-    title: "Timeline Syncing",
-    description: "Automatic adjustment of translated speech to match original video pacing and visual cues.",
-  },
-  {
-    icon: <ShieldCheck className="size-7" />,
-    title: "Premium Security",
-    description: "Your data and original content are encrypted and protected with enterprise-grade security.",
-  },
-  {
-    icon: <Play className="size-7" />,
-    title: "Multi-Format",
-    description: "Support for MP4, MOV, and direct YouTube integration for seamless workflow.",
-  },
-];

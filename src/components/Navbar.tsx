@@ -24,14 +24,6 @@ export default function Navbar() {
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-6">
-          <Link href="#features" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest">
-            Features
-          </Link>
-          <Link href="#pricing" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest">
-            Pricing
-          </Link>
-          
-          <div className="h-6 w-px bg-border mx-2" />
           
           <ThemeToggle />
 
