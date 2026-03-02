@@ -1,1 +1,20 @@
-yeni dub edəndə step-lər əvvəlki kimi deyil, və ümumiyyətlə step-lər yoxdu, bu problemi həll elə. stepl-ləri gətir. 
+Mövcud MVP-ni (Minimum Viable Product) daha peşəkar və "Pro" səviyyəyə çatdırmaq, yəni ilk istifadəçilərə qüsursuz və dəyərli bir təcrübə təqdim etmək üçün aşağıdakı əlavə və təkmilləşdirmələri edə bilərik. Bu siyahı tətbiqin həm görünüşündə, həm də arxadakı məntiqində (backend) edilməli olanları əhatə edir:
+
+1. Xəta və Prosseslərin İdarəedilməsi (Error Handling & UX)
+Real-vaxt Status Yeniləmələri (WebSockets/SSE): Video dublaj prosesi (yüklənmə, transkripsiya, tərcümə, səs sintezi) uzun çəkir. İstfadəçiyə prosesin faizini (məs.: "Tərcümə edilir 45%") canlı göstərmək üçün WebSockets və ya Server-Sent Events əlavə edilməlidir. İndiki 5 saniyəlik anketləmə (polling) güclü MVP üçün yetərli deyil.
+Detallı Xəta Mesajları: Əgər YouTube linki səhvdirsə və ya video formatı uyğun deyilsə, istifadəçiyə dəqiq bir bildiriş (Toast/Alert) getməlidir (məsələn: "Bu video çox uzundur, maksimum 5 dəqiqə olmalıdır").
+Ləğv Etmə (Cancel) Xüsusiyyəti: Başladılmış, lakin çox vaxt aparan bir prosesi istifadəçinin yarıda dayandırmasına (Cancel job) icazə verilməlidir.
+2. Audio və Subtitr Təkmilləşdirmələri (Core Features)
+Subtitrlərin Redaktəsi (Subtitle Editor): Ən vacib "Pro" xüsusiyyətlərindən biridir. Süni intellekt bəzən sözləri səhv eşidə və ya tərcümə edə bilər. İstifadəçinin dublajdan əvvəl və ya sonra yaranan subtitrləri ekranda oxuyub əllə redaktə edə biləcəyi bir kiçik pəncərə/cədvəl olmalıdır.
+Səs Seçimi (Voice Cloning & Selection): Hazırda tək bir səs istifadə olunursa, istifadəçiyə qadın/kişi, fərqli aksentlər və ya səs tonları seçmək imkanı verilməlidir (məsələn, ElevenLabs və ya OpenAI TTS inteqrasiyası ilə).
+Arxa Plan Səsini Qorumaq (Audio Isolation): Yalnız səsi sintez etmək yox, videodakı orijinal arxa plan musiqisini (və ya səs-küyü) qoruyub üzərinə dublaj səsini əlavə etmək.
+3. Ödəniş Sistemi və Limitlər (Monetization & Quotas)
+Premium Plan (Stripe/LemonSqueezy inteqrasiyası): MVP-nin pul qazana bilməsi üçün abunəlik və ya kredit sistemi olmalıdır (məs.: "Aylıq 20 dəqiqə pulsuz, sonrası üçün Pro plan").
+Kredit Sistemi (Dashboard-da görsənməsi): İstifadəçinin neçə dəqiqəlik limiti qalıb, nə qədərini istifadə edib – bu məlumat aktiv şəkildə bazada hesablanmalı və istifadəçiyə bildirilməlidir.
+4. İstfadəçi Təcrübəsi və Dizayn (Polished UI/UX)
+Video Player İnteqrasiyası: Hazır videonu elə saytın daxilində (Custom Video Player) izləmək. Orijinal və yeni səs arasında bir toxunuşla keçid etmək (A/B testing kimi).
+Yükləmə Formatları (Export Options): Videonu fərqli formatlarda (məs., TikTok üçün dikinə, və ya sadəcə səs formatında mp3, yaxud yalnız srt subtitr faylı) yükləmək imkanı.
+Mobil Uyğunluq (Fully Responsive): Platformanın bütün hissələrinin telefondan da problemsiz işləməsi (Xüsusilə video yükləmə və nəticəni izləmə panelləri).
+5. Arxa fon arxitekturası (Backend Reliability)
+Növbə Sitemi (Queue System): Eyni anda 10 nəfər video yükləsə, server çökə bilər (FFmpeg çox resurs tələb edir). Bunun üçün BullMQ, Redis və ya serverless arxitektura (məs: Inngest/Trigger.dev/AWS SQS) ilə işlərin (jobs) növbəyə salınması.
+Fayl Saxlanması (Cloud Storage): Videoların və səslərin lokal qovluqda (tmp) yox, Amazon S3, Supabase Storage və ya Cloudflare R2 kimi bulud yaddaşlarında saxlanması.

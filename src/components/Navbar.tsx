@@ -5,8 +5,6 @@ import { useUser, UserButton, SignInButton, SignUpButton } from "@clerk/nextjs";
 import { Mic2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
-import Sidebar from "@/components/Sidebar";
-import MobileNav from "@/components/MobileNav";
 
 export default function Navbar() {
   const { isLoaded, isSignedIn } = useUser();
@@ -22,27 +20,33 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-6">
-          
+        {/* Right side nav — works on all screen sizes */}
+        <div className="flex items-center gap-3">
           <ThemeToggle />
 
           {!isLoaded ? (
             <div className="h-9 w-24 bg-muted animate-pulse rounded-lg" />
           ) : isSignedIn ? (
-            <div className="flex items-center gap-4">
-              <Button variant="premium" size="sm" className="h-9 px-4 rounded-xl font-bold shadow-lg" asChild>
+            <div className="flex items-center gap-3">
+              {/* Desktop label */}
+              <Button variant="premium" size="sm" className="h-9 px-4 rounded-xl font-bold shadow-lg hidden sm:flex" asChild>
                 <Link href="/dashboard">
                   <Plus className="mr-2 size-4" />
                   New Dub
                 </Link>
               </Button>
+              {/* Mobile icon only */}
+              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl flex sm:hidden" asChild>
+                <Link href="/dashboard">
+                  <Plus className="size-4" />
+                </Link>
+              </Button>
               <UserButton afterSignOutUrl="/" />
             </div>
           ) : (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <SignInButton mode="modal">
-                <Button variant="ghost" className="font-bold rounded-xl h-9">Log In</Button>
+                <Button variant="ghost" className="font-bold rounded-xl h-9 hidden sm:flex">Log In</Button>
               </SignInButton>
               <SignUpButton mode="modal">
                 <Button className="font-bold bg-violet-600 hover:bg-violet-700 rounded-xl h-9 shadow-lg shadow-violet-500/10">
@@ -51,12 +55,6 @@ export default function Navbar() {
               </SignUpButton>
             </div>
           )}
-        </div>
-
-        {/* Mobile Nav */}
-        <div className="flex md:hidden items-center gap-2">
-           <ThemeToggle />
-           <MobileNav />
         </div>
       </div>
     </nav>

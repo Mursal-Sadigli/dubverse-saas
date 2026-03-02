@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Sparkles, Wand2 } from "lucide-react";
+import { ChevronLeft, Sparkles, Wand2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import UploadZone from "@/components/UploadZone";
 import { SUPPORTED_LANGUAGES } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { toast } from "sonner";
 
 export default function NewDubPage() {
   const router = useRouter();
@@ -18,10 +19,27 @@ export default function NewDubPage() {
   const [targetLang, setTargetLang] = useState("az");
   const [projectName, setProjectName] = useState("");
   const [sourceLang, setSourceLang] = useState("en");
+  const [sourceLangSearch, setSourceLangSearch] = useState("");
+  const [targetLangSearch, setTargetLangSearch] = useState("");
+
+  const filteredSourceLangs = SUPPORTED_LANGUAGES.filter(l =>
+    l.label.toLowerCase().includes(sourceLangSearch.toLowerCase()) ||
+    l.code.toLowerCase().includes(sourceLangSearch.toLowerCase())
+  );
+  const filteredTargetLangs = SUPPORTED_LANGUAGES.filter(l =>
+    l.code !== sourceLang && (
+      l.label.toLowerCase().includes(targetLangSearch.toLowerCase()) ||
+      l.code.toLowerCase().includes(targetLangSearch.toLowerCase())
+    )
+  );
 
   const handleUpload = async (data: { file?: File; youtubeUrl?: string }) => {
-    if (!projectName.trim()) return;
+    if (!projectName.trim()) {
+      toast.warning("Please enter a project name first.");
+      return;
+    }
     setIsLoading(true);
+    const toastId = toast.loading("Starting dubbing pipeline...");
     try {
       const formData = new FormData();
       formData.append("name", projectName);
@@ -33,10 +51,13 @@ export default function NewDubPage() {
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       const result = await res.json();
       if (result.projectId) {
+        toast.success("Project created! Redirecting...", { id: toastId });
         router.push(`/projects/${result.projectId}`);
+      } else {
+        throw new Error(result.error || "Failed to create project");
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong", { id: toastId });
     } finally {
       setIsLoading(false);
     }
@@ -78,29 +99,48 @@ export default function NewDubPage() {
                 onChange={(e) => setProjectName(e.target.value)}
                 className="h-12 text-lg rounded-2xl bg-zinc-500/5 border-none focus-visible:ring-2 focus-visible:ring-violet-500/50"
               />
+              {projectName.trim() && (
+                <p className="text-xs text-emerald-500 font-medium flex items-center gap-1 ml-1">
+                  <CheckCircle2 className="size-3" /> Looks good!
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-bold ml-1">Source Language</label>
+                <Input
+                  placeholder="Search..."
+                  value={sourceLangSearch}
+                  onChange={(e) => setSourceLangSearch(e.target.value)}
+                  className="h-9 rounded-xl bg-zinc-500/5 border-none text-sm mb-1"
+                />
                 <select
-                  className="flex h-12 w-full rounded-2xl border-none bg-zinc-500/5 px-4 text-sm font-medium focus-visible:ring-2 focus-visible:ring-violet-500/50 outline-none cursor-pointer"
+                  className="flex h-12 w-full rounded-2xl border-none bg-zinc-500/5 px-4 text-sm font-medium outline-none cursor-pointer"
                   value={sourceLang}
                   onChange={(e) => setSourceLang(e.target.value)}
+                  size={4}
                 >
-                  {SUPPORTED_LANGUAGES.map((l) => (
+                  {filteredSourceLangs.map((l) => (
                     <option key={l.code} value={l.code}>{l.flag} {l.label}</option>
                   ))}
                 </select>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-bold ml-1">Target Language</label>
+                <Input
+                  placeholder="Search..."
+                  value={targetLangSearch}
+                  onChange={(e) => setTargetLangSearch(e.target.value)}
+                  className="h-9 rounded-xl bg-zinc-500/5 border-none text-sm mb-1"
+                />
                 <select
-                  className="flex h-12 w-full rounded-2xl border-none bg-zinc-500/5 px-4 text-sm font-medium focus-visible:ring-2 focus-visible:ring-violet-500/50 outline-none cursor-pointer"
+                  className="flex h-12 w-full rounded-2xl border-none bg-zinc-500/5 px-4 text-sm font-medium outline-none cursor-pointer"
                   value={targetLang}
                   onChange={(e) => setTargetLang(e.target.value)}
+                  size={4}
                 >
-                  {SUPPORTED_LANGUAGES.filter(l => l.code !== sourceLang).map((l) => (
+                  {filteredTargetLangs.map((l) => (
                     <option key={l.code} value={l.code}>{l.flag} {l.label}</option>
                   ))}
                 </select>
