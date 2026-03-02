@@ -28,7 +28,7 @@ export default function ProjectPage() {
           }
       }
     } catch (err) {
-      console.error("Failed to fetch project:", err);
+      console.error("Layihə yüklənə bilmədi:", err);
     }
   };
 
@@ -64,7 +64,7 @@ export default function ProjectPage() {
         <Navbar />
         <div className="flex flex-col items-center gap-4 text-center">
           <Loader2 className="size-10 animate-spin text-violet-500" />
-          <p className="font-medium text-muted-foreground">Loading project details...</p>
+          <p className="font-medium text-muted-foreground">Layihə məlumatları yüklənir...</p>
         </div>
       </div>
     );
@@ -88,21 +88,21 @@ export default function ProjectPage() {
           </p>
         </div>
 
-        {/* Step progress */}
+        {/* Addım irəliləyişi */}
         <Card className="glass mb-8 p-6 sm:p-8">
           <StepProgress status={project.status} />
           {isProcessing && (
             <p className="mt-5 text-center text-sm font-medium text-muted-foreground animate-pulse">
-              ⚡ {project.status.toUpperCase()} — this may take a few minutes...
+              ⚡ {project.status.toUpperCase()} — bu bir neçə dəqiqə çəkə bilər...
             </p>
           )}
           {project.status === "uploading" && (
             <div className="mt-6 text-center">
               <Button onClick={startPipeline} disabled={isStarting} variant="premium">
                 {isStarting ? (
-                  <><Loader2 className="size-4 animate-spin mr-2" /> Starting pipeline...</>
+                  <><Loader2 className="size-4 animate-spin mr-2" /> Pipeline başladılır...</>
                 ) : (
-                  <><RefreshCw className="size-4 mr-2" /> Start AI Pipeline</>
+                  <><RefreshCw className="size-4 mr-2" /> AI Pipeline Başlat</>
                 )}
               </Button>
             </div>
@@ -110,20 +110,19 @@ export default function ProjectPage() {
           {project.status === "failed" && (
             <div className="mt-5 flex items-center gap-2 rounded-xl border border-destructive/20 bg-destructive/10 p-3.5 text-sm font-medium text-destructive">
               <AlertCircle className="size-4 shrink-0" />
-              {project.error || "Something went wrong. Please try again."}
+              {project.error || "Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin."}
             </div>
           )}
         </Card>
 
-        {/* Tabs */}
+        {/* Tablar */}
         {(project.status === "completed" || project.subtitles?.length > 0) && (
           <>
-            {/* Tab bar */}
             <div className="mb-5 flex gap-1 rounded-xl bg-foreground/5 p-1">
               {[
-                { id: "watch", label: "Watch", icon: Film },
-                { id: "subtitles", label: "Subtitles", icon: FileText },
-                { id: "export", label: "Export", icon: Download },
+                { id: "watch", label: "İzlə", icon: Film },
+                { id: "subtitles", label: "Subtitrler", icon: FileText },
+                { id: "export", label: "Yüklə", icon: Download },
               ].map((tab) => {
                 const Icon = tab.icon;
                 if (tab.id === "watch" && project.status !== "completed") return null;
@@ -145,7 +144,6 @@ export default function ProjectPage() {
               })}
             </div>
 
-            {/* Watch tab */}
             {activeTab === "watch" && project.status === "completed" && (
               <Card className="glass overflow-hidden p-0 mb-8 aspect-video flex items-center justify-center bg-black/40">
                 <video 
@@ -153,16 +151,15 @@ export default function ProjectPage() {
                   className="h-full w-full object-contain"
                   src={`/api/projects/${id}/video`}
                 >
-                  Your browser does not support the video tag.
+                  Brauzeriniz video etiketini dəstəkləmir.
                 </video>
               </Card>
             )}
 
-            {/* Subtitles tab */}
             {activeTab === "subtitles" && (
               <Card className="glass overflow-hidden">
                 <div className="border-b border-foreground/5 px-5 py-4">
-                  <span className="font-semibold text-foreground">Subtitles ({project.subtitles?.length || 0})</span>
+                  <span className="font-semibold text-foreground">Subtitrler ({project.subtitles?.length || 0})</span>
                 </div>
                 <div className="max-h-[500px] overflow-y-auto">
                   {project.subtitles?.map((sub) => (
@@ -176,19 +173,18 @@ export default function ProjectPage() {
                     </div>
                   ))}
                   {(!project.subtitles || project.subtitles.length === 0) && (
-                    <p className="p-8 text-center text-muted-foreground">Subtitles will appear here after transcription.</p>
+                    <p className="p-8 text-center text-muted-foreground">Subtitrler transkripsiyadan sonra burada görünəcək.</p>
                   )}
                 </div>
               </Card>
             )}
 
-            {/* Export tab */}
             {activeTab === "export" && (
               <div className="flex flex-col gap-3">
                 {[
-                  { icon: <Film className="size-5 text-violet-500" />, label: "Dubbed Video", desc: "MP4 with AI voice track", format: "mp4", disabled: project.status !== "completed" },
-                  { icon: <FileText className="size-5 text-blue-500" />, label: "Subtitles", desc: "SRT subtitle file", format: "srt", disabled: !project.subtitles?.some(s => s.translatedText) },
-                  { icon: <Volume2 className="size-5 text-emerald-500" />, label: "Audio Only", desc: "MP3 dubbed audio track", format: "audio", disabled: project.status !== "completed" },
+                  { icon: <Film className="size-5 text-violet-500" />, label: "Dublajlı Video", desc: "AI səs track ilə MP4", format: "mp4", disabled: project.status !== "completed" },
+                  { icon: <FileText className="size-5 text-blue-500" />, label: "Subtitrler", desc: "SRT subtitr faylı", format: "srt", disabled: !project.subtitles?.some(s => s.translatedText) },
+                  { icon: <Volume2 className="size-5 text-emerald-500" />, label: "Yalnız Səs", desc: "Dublajlı MP3 audio", format: "audio", disabled: project.status !== "completed" },
                 ].map((item) => (
                   <Card key={item.format} className={cn("glass flex items-center gap-4 p-5", item.disabled && "opacity-50 grayscale")}>
                     <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-foreground/5">
@@ -205,10 +201,10 @@ export default function ProjectPage() {
                       asChild={!item.disabled}
                     >
                       {item.disabled ? (
-                        <span><Download className="size-3.5" /> Download</span>
+                        <span><Download className="size-3.5" /> Yüklə</span>
                       ) : (
                         <a href={`/api/export?projectId=${id}&format=${item.format}`}>
-                          <Download className="size-3.5" /> Download
+                          <Download className="size-3.5" /> Yüklə
                         </a>
                       )}
                     </Button>

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import ProjectCard from "@/components/ProjectCard";
 import { Project } from "@/lib/types";
-import { Plus, Mic2, Sparkles } from "lucide-react";
+import { Plus, Mic2, Sparkles, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -25,7 +25,7 @@ export default function DashboardPage() {
         setProjects(data.projects || []);
       }
     } catch {
-      toast.error("Failed to load projects");
+      toast.error("Layihələr yüklənə bilmədi");
     } finally {
       setIsLoading(false);
     }
@@ -37,7 +37,7 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, [fetchProjects]);
 
-  // Keyboard shortcut: press "/" to go to New Dub
+  // Klaviatura qısayolu: "/" basıb yeni dublaj aç
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement).tagName;
@@ -55,12 +55,12 @@ export default function DashboardPage() {
       const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
       if (res.ok) {
         setProjects((prev) => prev.filter((p) => p.id !== id));
-        toast.success("Project deleted");
+        toast.success("Layihə silindi");
       } else {
-        toast.error("Failed to delete project");
+        toast.error("Layihə silinə bilmədi");
       }
     } catch {
-      toast.error("Failed to delete project");
+      toast.error("Layihə silinə bilmədi");
     }
   };
 
@@ -70,16 +70,21 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <div className="max-w-5xl mx-auto space-y-6 pt-6">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Your Projects</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Press <kbd className="px-1.5 py-0.5 rounded-md bg-muted text-xs font-mono border">/</kbd> to create a new dub
-            </p>
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" className="rounded-xl" asChild>
+              <Link href="/"><ChevronLeft className="size-5" /></Link>
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Layihələriniz</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Yeni dublaj üçün <kbd className="px-1.5 py-0.5 rounded-md bg-muted text-xs font-mono border">/</kbd> düyməsini basın
+              </p>
+            </div>
           </div>
           <Button variant="premium" className="font-bold shadow-md rounded-xl" asChild>
             <Link href="/dashboard/new">
               <Plus className="size-4 mr-2" />
-              New Dub
+              Yeni Dublaj
             </Link>
           </Button>
         </div>
@@ -101,12 +106,12 @@ export default function DashboardPage() {
             <div className="size-20 rounded-3xl bg-violet-500/10 flex items-center justify-center mb-5">
               <Mic2 className="size-10 text-violet-500/50" />
             </div>
-            <h3 className="text-xl font-bold">No projects yet</h3>
+            <h3 className="text-xl font-bold">Hələ layihə yoxdur</h3>
             <CardDescription className="mb-8 mt-2 max-w-xs">
-              Create your first AI-dubbed video in minutes. Upload a file or paste a YouTube link.
+              Dəqiqələr içində ilk AI dublajlı videonu yarat. Fayl yüklə və ya YouTube linki yapışdır.
             </CardDescription>
             <Button variant="premium" className="rounded-xl font-bold shadow-lg px-6" onClick={() => router.push("/dashboard/new")}>
-              <Sparkles className="size-4 mr-2" /> Start Your First Dub
+              <Sparkles className="size-4 mr-2" /> İlk Dublajını Başlat
             </Button>
           </Card>
         ) : (

@@ -31,7 +31,7 @@ export default function UploadZone({ onUpload, isLoading }: UploadZoneProps) {
       setFile(dropped);
       setError("");
     } else {
-      setError("Please drop a video file (MP4, MOV, AVI, etc.)");
+      setError("Zəhmət olmasa video faylı atın (MP4, MOV, AVI və s.)");
     }
   }, []);
 
@@ -46,11 +46,11 @@ export default function UploadZone({ onUpload, isLoading }: UploadZoneProps) {
   const handleSubmit = () => {
     setError("");
     if (mode === "file") {
-      if (!file) { setError("Please select a video file."); return; }
+      if (!file) { setError("Zəhmət olmasa video fayl seçin."); return; }
       onUpload({ file });
     } else {
-      if (!youtubeUrl) { setError("Please enter a YouTube URL."); return; }
-      if (!validateYoutubeUrl(youtubeUrl)) { setError("Invalid YouTube URL. Supported: /watch, /shorts, youtu.be"); return; }
+      if (!youtubeUrl) { setError("Zəhmət olmasa YouTube URL daxil edin."); return; }
+      if (!validateYoutubeUrl(youtubeUrl)) { setError("Yanlış YouTube URL. Dəstəklənənlər: /watch, /shorts, youtu.be"); return; }
       onUpload({ youtubeUrl });
     }
   };
@@ -71,7 +71,7 @@ export default function UploadZone({ onUpload, isLoading }: UploadZoneProps) {
             )}
           >
             {m === "file" ? <Upload className="size-4" /> : <Link2 className="size-4" />}
-            {m === "file" ? "Upload File" : "YouTube URL"}
+            {m === "file" ? "Fayl Yüklə" : "YouTube URL"}
           </button>
         ))}
       </div>
@@ -108,7 +108,7 @@ export default function UploadZone({ onUpload, isLoading }: UploadZoneProps) {
                 className="mt-2 h-8 gap-1.5 text-xs text-destructive-foreground"
                 onClick={(e) => { e.preventDefault(); setFile(null); }}
               >
-                <X className="size-3.5" /> Remove
+                <X className="size-3.5" /> Sil
               </Button>
             </>
           ) : (
@@ -117,8 +117,8 @@ export default function UploadZone({ onUpload, isLoading }: UploadZoneProps) {
                 <Upload className="size-6 text-violet-500" />
               </div>
               <div>
-                <p className="mb-1 font-semibold text-foreground">Drop your video here</p>
-                <p className="text-[13px] text-muted-foreground">or click to browse · MP4, MOV, AVI · Max 500MB</p>
+                <p className="mb-1 font-semibold text-foreground">Videonuzu bura atın</p>
+                <p className="text-[13px] text-muted-foreground">və ya klik edib seçin · MP4, MOV, AVI · Maks 500MB</p>
               </div>
             </>
           )}
@@ -141,7 +141,7 @@ export default function UploadZone({ onUpload, isLoading }: UploadZoneProps) {
             />
           </div>
           <p className="text-[13px] text-muted-foreground">
-            Paste any YouTube video URL · Max 30 minutes
+            Hər hansı YouTube video URL-i yapışdırın · Maks 30 dəqiqə
           </p>
         </div>
       )}
@@ -170,7 +170,7 @@ export default function UploadZone({ onUpload, isLoading }: UploadZoneProps) {
         ) : (
           <>
             <Film className="size-4" />
-            Start Dubbing
+            Dublajı Başlat
           </>
         )}
       </Button>
