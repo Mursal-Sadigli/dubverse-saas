@@ -1,0 +1,57 @@
+{
+  "common": {
+    "dashboard": "İdarə Paneli",
+    "projects": "Layihələr",
+    "newDub": "Yeni Dublaj",
+    "exports": "İxraclar",
+    "settings": "Ayarlar",
+    "signOut": "Çıxış",
+    "signIn": "Daxil ol",
+    "startFree": "Pulsuz başla",
+    "loading": "Layihə yüklənir...",
+    "account": "Hesab",
+    "manageProfile": "Profilin idarə edilməsi",
+    "status": {
+      "uploading": "Yüklənir",
+      "transcribing": "Transkripsiya edilir",
+      "translating": "Tərcümə edilir",
+      "dubbing": "Dublaj edilir",
+      "completed": "Tamamlanıb",
+      "failed": "Uğursuz"
+    }
+  },
+  "landing": {
+    "title": "İstənilən videonu süni intellektlə istənilən dilə dublaj edin",
+    "subtitle": "Video yükləyin və ya YouTube linkini yapışdırın. Bizim AI onu hədəf dilinizdə transkripsiya edir, tərcümə edir və dublaj edir.",
+    "cta": "Pulsuz Dublaja Başla"
+  },
+  "dashboard": {
+    "welcome": "Xoş gəldik, {name}! Gəlin bəzi videoları dublaj edək. 👋",
+    "recent": "Son Layihələr",
+    "processing": "Hazırlanmaqda olanlar",
+    "usage": "İstifadə xülasəsi",
+    "quickActions": "Sürətli Əməliyyatlar",
+    "noProjects": "Layihə tapılmadı. Yeni birini yaradaraq başlayın!",
+    "freePlan": "Pulsuz Plan",
+    "used": "istifadə olunub",
+    "remaining": "{count} dəqiqə qalıb",
+    "upgrade": "Pro-ya Keçid Et",
+    "quotaInfo": "Aylıq pulsuz limitin {percent}%-i istifadə olunub.",
+    "completedCount": "Tamamlanmış Dublajlar",
+    "activeJobs": "Aktiv İşlər",
+    "processingNow": "Hazırda hazırlanır",
+    "viewAll": "Hamısına Bax",
+    "noJobs": "Növbədə iş yoxdur.",
+    "startFirst": "İlk Dublaja Başla",
+    "upgradeTitle": "Premium-a Keçid",
+    "upgradeDesc": "Limitsiz dəqiqələr, 4K keyfiyyət və üstünlük əldə edin.",
+    "upgradeBtn": "İndi Pro-ya Keç"
+  },
+  "projects": {
+    "tabs": {
+        "watch": "İzlə",
+        "subtitles": "Subtitrlər",
+        "export": "İxrac"
+    }
+  }
+}
