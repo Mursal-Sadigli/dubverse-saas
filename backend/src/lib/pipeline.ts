@@ -1,4 +1,4 @@
-import { getProject, updateProject } from "./supabase";
+import { getProject, updateProject, supabase } from "./supabase";
 import { exec } from "child_process";
 import { promisify } from "util";
 import { existsSync, mkdirSync, readFileSync } from "fs";
@@ -64,7 +64,42 @@ export async function processPipeline(projectId: string) {
     const audioPath = await extractAudio(projectId, workDir, videoPath);
     if (await checkCancelled(projectId)) return;
 
-    // Step 3: Transcribe
+    // Step 3: Check Duration & Deduct Minutes
+    emitProgress(projectId, { step: "transcribing", percent: 25, message: "Kredit yoxlanılır..." });
+    const durationSeconds = await getAudioDuration(audioPath);
+    const durationMinutes = Math.ceil(durationSeconds / 60);
+    
+    if (durationMinutes > 0) {
+       let sub = null;
+       const { data, error } = await supabase.from('subscriptions').select('minutes_used, minutes_limit').eq('user_id', project.user_id).maybeSingle();
+       
+       if (error && error.code !== 'PGRST116') {
+         console.error("Supabase subscription fetch error:", error);
+       } else if (data) {
+         sub = data;
+       }
+
+       if (!sub) {
+         // Create default free tier if missing
+         sub = { minutes_used: 0, minutes_limit: 20 };
+       }
+
+       const newUsed = sub.minutes_used + durationMinutes;
+       if (newUsed > sub.minutes_limit) {
+          throw new Error(`Kifayət qədər limit yoxdur. Bu video üçün ${durationMinutes} dəqiqə lazımdır, lakin sizin ${sub.minutes_limit - sub.minutes_used} dəqiqəniz qalıb.`);
+       }
+       
+       await supabase.from('subscriptions').upsert({ 
+         user_id: project.user_id, 
+         plan: sub.minutes_limit > 20 ? 'pro' : 'free',
+         minutes_used: newUsed,
+         minutes_limit: sub.minutes_limit,
+         updated_at: new Date().toISOString(),
+       }, { onConflict: 'user_id' });
+    }
+    if (await checkCancelled(projectId)) return;
+
+    // Step 4: Transcribe
     emitProgress(projectId, { step: "transcribing", percent: 35, message: "Transkripsiya edilir..." });
     const subtitles = await performTranscription(projectId, audioPath);
     if (await checkCancelled(projectId)) return;
@@ -200,7 +235,7 @@ async function performDubbing(
   const mixInputs = segmentPaths.map((_, i) => `[s${i}]`).join("");
   const n = segmentPaths.length;
   filterParts.push(
-    `[0:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=0.12[bg];` +
+    `[0:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=0[bg];` +
     `[bg]${mixInputs}amix=inputs=${n + 1}:duration=first:dropout_transition=2,volume=${n + 1}[mixed];` +
     `[mixed]loudnorm=I=-23:TP=-1.5:LRA=11[out]`
   );
