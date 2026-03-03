@@ -18,20 +18,27 @@ export default function DashboardPage() {
   const { getToken } = useAuth();
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [usage, setUsage] = useState<{ plan: string, minutesUsed: number, minutesLimit: number } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchProjects = useCallback(async () => {
     try {
       const token = await getToken();
-      const res = await fetch(`${API}/api/projects`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
+      const [projRes, usageRes] = await Promise.all([
+        fetch(`${API}/api/projects`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API}/api/billing/usage`, { headers: { Authorization: `Bearer ${token}` } })
+      ]);
+      
+      if (projRes.ok) {
+        const data = await projRes.json();
         setProjects(data.projects || []);
       }
+      if (usageRes.ok) {
+        const usageData = await usageRes.json();
+        setUsage(usageData);
+      }
     } catch {
-      toast.error("Layihələr yüklənə bilmədi");
+      toast.error("Məlumatlar yüklənə bilmədi");
     } finally {
       setIsLoading(false);
     }
@@ -90,12 +97,25 @@ export default function DashboardPage() {
               </p>
             </div>
           </div>
-          <Button variant="premium" className="font-bold shadow-md rounded-xl" asChild>
-            <Link href="/dashboard/new">
-              <Plus className="size-4 mr-2" />
-              Yeni Dublaj
-            </Link>
-          </Button>
+          <div className="flex items-center gap-4">
+            {usage && (
+              <div className="text-sm bg-white/5 px-4 py-2 rounded-xl border border-white/10 hidden sm:block">
+                <span className="text-gray-400 mr-2">Kredit:</span>
+                <strong className={usage.minutesUsed >= usage.minutesLimit ? "text-red-400" : "text-white"}>
+                  {usage.minutesUsed} / {usage.minutesLimit} dəq
+                </strong>
+                {usage.plan === "free" && (
+                   <Link href="/pricing" className="ml-3 text-blue-400 hover:text-blue-300 font-medium">Pro al</Link>
+                )}
+              </div>
+            )}
+            <Button variant="premium" className="font-bold shadow-md rounded-xl" asChild>
+              <Link href="/dashboard/new">
+                <Plus className="size-4 mr-2" />
+                Yeni Dublaj
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {isLoading ? (

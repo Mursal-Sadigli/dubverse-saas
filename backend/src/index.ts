@@ -13,7 +13,7 @@ import videoRouter from "./routes/video";
 import subtitlesRouter from "./routes/subtitles";
 import voicesRouter from "./routes/voices";
 import billingRouter from "./routes/billing";
-import inngestServeRouter from "./routes/inngest-serve";
+import inngestRouter from "./routes/inngest";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -43,7 +43,7 @@ app.use("/api/video", videoRouter);
 app.use("/api/subtitles", subtitlesRouter);
 app.use("/api/voices", voicesRouter);
 app.use("/api/billing", billingRouter);      // GET /usage, POST /checkout
-app.use("/api/inngest", inngestServeRouter); // Inngest serve handler
+app.use("/api/inngest", inngestRouter); // Inngest serve handler
 
 app.get("/health", (_req, res) => res.json({ status: "ok", ts: new Date().toISOString() }));
 

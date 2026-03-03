@@ -8,6 +8,7 @@ import { logPipeline, runFfmpeg, getFfmpegBin } from "./ffmpeg";
 import { generateTTSSegment } from "./tts";
 import { transcribeAudio, translateText } from "./ai";
 import { emitProgress } from "./emitter";
+import { uploadFile } from "./storage";
 
 const execPromise = promisify(exec);
 
@@ -102,7 +103,10 @@ async function prepareVideo(projectId: string, workDir: string, videoPath: strin
       `yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]" --extractor-args "youtube:player_client=android,ios" -o "${outPath}" "${url}" --max-filesize 500m`,
       { timeout: 5 * 60 * 1000 }
     );
-    await updateProject(projectId, { videoPath: outPath });
+    emitProgress(projectId, { step: "uploading", percent: 18, message: "Storage-a yüklənir..." });
+    const storagePath = `${projectId}/video.mp4`;
+    await uploadFile(outPath, storagePath);
+    await updateProject(projectId, { videoPath: storagePath });
     return outPath;
   }
   if (!videoPath || !existsSync(videoPath)) throw new Error(`Video not found: ${videoPath}`);
@@ -116,7 +120,10 @@ async function extractAudio(projectId: string, workDir: string, videoPath: strin
     `"${getFfmpegBin()}" -i "${videoPath}" -vn -acodec mp3 -ab 128k -ar 44100 -y "${audioPath}"`,
     { timeout: 5 * 60 * 1000 }
   );
-  await updateProject(projectId, { audioPath });
+  emitProgress(projectId, { step: "transcribing", percent: 25, message: "Audio storage-a yüklənir..." });
+  const storagePath = `${projectId}/audio.mp3`;
+  await uploadFile(audioPath, storagePath);
+  await updateProject(projectId, { audioPath: storagePath });
   return audioPath;
 }
 
@@ -203,7 +210,10 @@ async function performDubbing(
     "-map", "[out]", "-acodec", "libmp3lame", "-ar", "44100", "-b:a", "192k", "-y", dubbedAudioPath,
   ], projectId);
 
-  await updateProject(projectId, { dubbedAudioPath });
+  emitProgress(projectId, { step: "dubbing", percent: 88, message: "Dublaj storage-a yüklənir..." });
+  const storagePath = `${projectId}/dubbed_audio.mp3`;
+  await uploadFile(dubbedAudioPath, storagePath);
+  await updateProject(projectId, { dubbedAudioPath: storagePath });
   return dubbedAudioPath;
 }
 
@@ -214,6 +224,10 @@ async function muxFinalVideo(projectId: string, workDir: string, videoPath: stri
     "-map", "0:v:0", "-map", "1:a:0",
     "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-shortest", "-y", finalVideoPath,
   ], projectId);
-  await updateProject(projectId, { finalVideoPath, status: "completed" });
+  
+  emitProgress(projectId, { step: "dubbing", percent: 95, message: "Final video storage-a yüklənir..." });
+  const storagePath = `${projectId}/final_dubbed.mp4`;
+  await uploadFile(finalVideoPath, storagePath);
+  await updateProject(projectId, { finalVideoPath: storagePath, status: "completed" });
   return finalVideoPath;
 }

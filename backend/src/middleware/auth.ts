@@ -10,6 +10,26 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   }
   (req as any).userId = userId;
 
+  // Track subscription details
+  let sub = { plan: "free", minutes_used: 0, minutes_limit: 20 };
+  try {
+    const { data } = await supabase.from("subscriptions").select("*").eq("user_id", userId).single();
+    if (data) sub = { plan: data.plan, minutes_used: data.minutes_used, minutes_limit: data.minutes_limit };
+  } catch (err: any) {
+    if (err.code !== 'PGRST116') { // PGRST116 is not found, which is fine
+      console.error("[auth] Subscription fetch error:", err.message);
+    }
+  }
+
+  // Prevent actions if limit is reached (only for POST/PUT/DELETE requests that cost usage)
+  // We'll apply this logic to the transcribe route separately, or just universally for now:
+  if (req.method !== 'GET' && sub.minutes_used >= sub.minutes_limit) {
+     res.status(403).json({ error: "Usage limit exceeded. Please upgrade your plan." });
+     return;
+  }
+  
+  (req as any).subscription = sub;
+
   // Upsert user into Supabase on every request (idempotent)
   try {
     const user = await clerkClient.users.getUser(userId);
