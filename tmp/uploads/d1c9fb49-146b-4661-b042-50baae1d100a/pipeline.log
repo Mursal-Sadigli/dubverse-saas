@@ -1,0 +1,20 @@
+[2026-03-03T16:12:43.796Z] Pipeline started.
+[2026-03-03T16:12:44.714Z] Downloading YouTube: https://youtube.com/shorts/-grO33ayfNc?si=ydQI8pQlQdSs0MoH
+[2026-03-03T16:12:49.537Z] YouTube download done.
+[2026-03-03T16:12:49.945Z] Extracting audio...
+[2026-03-03T16:12:51.199Z] Transcribing...
+[2026-03-03T16:12:53.897Z] Translating with GPT-4o...
+[2026-03-03T16:12:56.639Z] TTS seg 1/5: "Facebook ilk yaratdığım şey deyil."
+[2026-03-03T16:12:56.642Z] ElevenLabs TTS segment 0: "Facebook ilk yaratdığım şey deyil...."
+[2026-03-03T16:12:59.631Z] Segment 0 written via ElevenLabs ✅
+[2026-03-03T16:12:59.846Z] TTS seg 2/5: "Çat sistemləri, oyunlar, öyrənmə alətlər"
+[2026-03-03T16:12:59.848Z] ElevenLabs TTS segment 1: "Çat sistemləri, oyunlar, öyrənmə alətlər..."
+[2026-03-03T16:13:01.555Z] Segment 1 written via ElevenLabs ✅
+[2026-03-03T16:13:01.889Z] TTS seg 3/5: "J.K. Rowling Harri Potteri yazıb nəşr et"
+[2026-03-03T16:13:01.891Z] ElevenLabs TTS segment 2: "J.K. Rowling Harri Potteri yazıb nəşr et..."
+[2026-03-03T16:13:03.439Z] Segment 2 written via ElevenLabs ✅
+[2026-03-03T16:13:03.676Z] TTS seg 4/5: "Hətta Beyonsə Halo-nu əldə etmək üçün yü"
+[2026-03-03T16:13:03.678Z] ElevenLabs TTS segment 3: "Hətta Beyonsə Halo-nu əldə etmək üçün yü..."
+[2026-03-03T16:13:05.145Z] Segment 3 written via ElevenLabs ✅
+[2026-03-03T16:13:05.445Z] TTS seg 5/5: "Ən böyük uğurlar uğursuz olmaq azadlığın"
+[2026-03-03T16:13:05.448Z] ElevenLabs TTS segment 4: "Ən böyük uğurlar uğursuz olmaq azadlığın..."

@@ -1,0 +1,106 @@
+[2026-03-03T15:54:04.921Z] Pipeline process started.
+[2026-03-03T15:54:05.854Z] Downloading YouTube: https://youtube.com/shorts/p9QOQnWAlxM?si=bOr38VPAkJ0VOAGG
+[2026-03-03T15:54:11.896Z] YouTube download completed.
+[2026-03-03T15:54:12.388Z] Extracting audio with FFmpeg...
+[2026-03-03T15:54:13.465Z] Audio extraction successful.
+[2026-03-03T15:54:13.469Z] Starting transcription...
+[2026-03-03T15:54:16.077Z] Starting translation...
+[2026-03-03T15:54:18.302Z] Generating segment 1/2: "Bu günədək, bundan sonra Birlə..."
+[2026-03-03T15:54:21.155Z] Segment 0 saved (28944 bytes).
+[2026-03-03T15:54:21.158Z] Generating segment 2/2: "hökumətinin, cinsiyyətin ancaq..."
+[2026-03-03T15:54:23.677Z] Segment 1 saved (31248 bytes).
+[2026-03-03T15:54:23.681Z] Running FFmpeg: C:\Users\fullm\Downloads\dubverse-saas\backend\node_modules\ffmpeg-static\ffmpeg.exe -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\3923f65a-920c-4df8-a07d-88c8defc5ec7\audio.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\3923f65a-920c-4df8-a07d-88c8defc5ec7\segments\seg_0.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\3923f65a-920c-4df8-a07d-88c8defc5ec7\segments\seg_1.mp3 -filter_complex [1:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=0|0[s0];[2:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=6480|6480[s1];[0:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=0[bg];[bg][s0][s1]amix=inputs=3:duration=first:dropout_transition=999,volume=6[out] -map [out] -acodec libmp3lame -ar 44100 -b:a 192k -y C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\3923f65a-920c-4df8-a07d-88c8defc5ec7\dubbed_audio.mp3
+[2026-03-03T15:54:23.820Z] FFmpeg Err: Input #0, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\3923f65a-920c-4df8-a07d-88c8defc5ec7\audio.mp3':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    encoder         : Lavf60.16.100
+  Duration: 00:00:13.53, start: 0.025057, bitrate: 128 kb/s
+  Stream #0:0: Audio: mp3, 44100 Hz, stereo, fltp, 128 kb/s
+    Metadata:
+      encoder         : Lavc60.31
+
+[2026-03-03T15:54:23.824Z] FFmpeg Err: [mp3 @ 00000233d1766480] Estimating duration from bitrate, this may be inaccurate
+Input #1, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\3923f65a-920c-4df8-a07d-88c8defc5ec7\segments\seg_0.mp3':
+  Duration: 00:00:04.82, start: 0.000000, bitrate: 48 kb/s
+  Stream #1:0: Audio: mp3, 24000 Hz, mono, fltp, 48 kb/s
+[mp3 @ 00000233d177abc0] Estimating duration from bitrate, this may be inaccurate
+Input #2, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\3923f65a-920c-4df8-a07d-88c8defc5ec7\segments\seg_1.mp3':
+  Duration: 00:00:05.21, start: 0.000000, bitrate: 48 kb/s
+  Stream #2:0: Audio: mp3, 24000 Hz, mono, fltp, 48 kb/s
+Stream mapping:
+  Stream #0:0 (mp3float) -> aformat:default
+  Stream #1:0 (mp3float) -> aformat:default
+  Stream #2:0 (mp3float) -> aformat:default
+  volume:default -> Stream #0:0 (libmp3lame)
+
+[2026-03-03T15:54:23.836Z] FFmpeg Err: Output #0, mp3, to 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\3923f65a-920c-4df8-a07d-88c8defc5ec7\dubbed_audio.mp3':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    TSSE            : Lavf60.16.100
+  Stream #0:0: Audio: mp3, 44100 Hz, stereo, fltp, 192 kb/s
+    Metadata:
+      encoder         : Lavc60.31.102 libmp3lame
+
+[2026-03-03T15:54:23.839Z] FFmpeg Err: size=       0kB time=N/A bitrate=N/A speed=N/A    
+[2026-03-03T15:54:24.046Z] FFmpeg Err: [out#0/mp3 @ 00000233d17c6580] video:0kB audio:317kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.235255%
+size=     318kB time=00:00:13.48 bitrate= 193.2kbits/s speed=60.5x    
+
+[2026-03-03T15:54:24.441Z] Starting final video/audio muxing...
+[2026-03-03T15:54:24.446Z] Running FFmpeg: C:\Users\fullm\Downloads\dubverse-saas\backend\node_modules\ffmpeg-static\ffmpeg.exe -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\3923f65a-920c-4df8-a07d-88c8defc5ec7\video.mp4 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\3923f65a-920c-4df8-a07d-88c8defc5ec7\dubbed_audio.mp3 -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -shortest -y C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\3923f65a-920c-4df8-a07d-88c8defc5ec7\final_dubbed.mp4
+[2026-03-03T15:54:24.542Z] FFmpeg Err: Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\3923f65a-920c-4df8-a07d-88c8defc5ec7\video.mp4':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    encoder         : Google
+  Duration: 00:00:13.50, start: 0.000000, bitrate: 597 kb/s
+  Stream #0:0[0x1](und)
+[2026-03-03T15:54:24.546Z] FFmpeg Err: : Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 360x640 [SAR 1:1 DAR 9:16], 403 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
+    Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+      vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](eng): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 192 kb/s (default)
+    Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+      vendor_id       : [0][0][0][0]
+Input #1, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\3923f65a-920c-4df8-a07d-88c8defc5ec7\dubbed_audio.mp3':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    encoder         : Lavf60.16.100
+  Duration: 00:00:13.53, start: 0.025057, bitrate: 192 kb/s
+  Stream #1:0: Audio: mp3, 44100 Hz, stereo, fltp, 192 kb/s
+    Metadata:
+      encoder         : Lavc60.31
+
+[2026-03-03T15:54:24.549Z] FFmpeg Err: Stream mapping:
+  Stream #0:0 -> #0:0 (copy)
+  Stream #1:0 -> #0:1 (mp3 (mp3float) -> aac (native))
+
+[2026-03-03T15:54:24.558Z] FFmpeg Err: Output #0, mp4, to 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\3923f65a-920c-4df8-a07d-88c8defc5ec7\final_dubbed.mp4':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    encoder         : Lavf60.16.100
+  Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 360x640 [SAR 1:1 DAR 9:16], q=2-31, 403 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
+
+[2026-03-03T15:54:24.562Z] FFmpeg Err:     Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+      vendor_id       : [0][0][0][0]
+  Stream #0:1: Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 192 kb/s
+    Metadata:
+      encoder         : Lavc60.31.102 aac
+size=       0kB time=N/A bitrate=N/A speed=N/A    
+[2026-03-03T15:54:25.053Z] FFmpeg Err: size=     512kB time=00:00:08.83 bitrate= 474.9kbits/s speed=17.6x    
+[2026-03-03T15:54:25.240Z] FFmpeg Err: [out#0/mp4 @ 0000019e6a25ee80] video:663kB audio:203kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 1.451360%
+size=     879kB time=00:00:13.49 bitrate= 533.6kbits/s speed=19.5x    
+
+[2026-03-03T15:54:25.243Z] FFmpeg Err: [aac @ 0000019e6a1b6200] Qavg: 32547.434
+
+[2026-03-03T15:54:25.659Z] Pipeline finished successfully!

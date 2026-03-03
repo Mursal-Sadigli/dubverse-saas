@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 import { ChevronLeft, Sparkles, Wand2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,12 +10,14 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import UploadZone from "@/components/UploadZone";
 import { SUPPORTED_LANGUAGES } from "@/lib/types";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
+
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function NewDubPage() {
   const router = useRouter();
-  
+  const { getToken } = useAuth();
+
   const [isLoading, setIsLoading] = useState(false);
   const [targetLang, setTargetLang] = useState("az");
   const [projectName, setProjectName] = useState("");
@@ -28,6 +31,9 @@ export default function NewDubPage() {
     setIsLoading(true);
     const toastId = toast.loading("Dublaj pipeline başladılır...");
     try {
+      const token = await getToken();
+
+      // 1. Upload / create project
       const formData = new FormData();
       formData.append("name", projectName);
       formData.append("sourceLanguage", sourceLang);
@@ -35,14 +41,26 @@ export default function NewDubPage() {
       if (data.file) formData.append("file", data.file);
       if (data.youtubeUrl) formData.append("youtubeUrl", data.youtubeUrl);
 
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      const result = await res.json();
-      if (result.projectId) {
-        toast.success("Layihə yaradıldı! Yönləndirilir...", { id: toastId });
-        router.push(`/projects/${result.projectId}`);
-      } else {
-        throw new Error(result.error || "Layihə yaradıla bilmədi");
-      }
+      const uploadRes = await fetch(`${API}/api/upload`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const uploadResult = await uploadRes.json();
+      if (!uploadResult.projectId) throw new Error(uploadResult.error || "Layihə yaradıla bilmədi");
+
+      // 2. Start pipeline
+      await fetch(`${API}/api/transcribe`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ projectId: uploadResult.projectId }),
+      });
+
+      toast.success("Layihə yaradıldı! Yönləndirilir...", { id: toastId });
+      router.push(`/projects/${uploadResult.projectId}`);
     } catch (err: any) {
       toast.error(err.message || "Xəta baş verdi", { id: toastId });
     } finally {
@@ -52,9 +70,9 @@ export default function NewDubPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <Button 
-        variant="ghost" 
-        size="sm" 
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => router.back()}
         className="mb-2 -ml-2 text-muted-foreground hover:text-foreground"
       >
@@ -107,7 +125,7 @@ export default function NewDubPage() {
               value={targetLang}
               onChange={(e) => setTargetLang(e.target.value)}
             >
-              {SUPPORTED_LANGUAGES.filter(l => l.code !== sourceLang).map((l) => (
+              {SUPPORTED_LANGUAGES.filter((l) => l.code !== sourceLang).map((l) => (
                 <option key={l.code} value={l.code}>{l.flag} {l.label}</option>
               ))}
             </select>

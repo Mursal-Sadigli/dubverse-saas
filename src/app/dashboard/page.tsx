@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useUser } from "@clerk/nextjs";
+import { useUser, useAuth } from "@clerk/nextjs";
 import ProjectCard from "@/components/ProjectCard";
 import { Project } from "@/lib/types";
 import { Plus, Mic2, Sparkles, ChevronLeft } from "lucide-react";
@@ -11,15 +11,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
 
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
 export default function DashboardPage() {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchProjects = useCallback(async () => {
     try {
-      const res = await fetch("/api/projects");
+      const token = await getToken();
+      const res = await fetch(`${API}/api/projects`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (res.ok) {
         const data = await res.json();
         setProjects(data.projects || []);
@@ -29,7 +35,7 @@ export default function DashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [getToken]);
 
   useEffect(() => {
     fetchProjects();
@@ -37,7 +43,6 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, [fetchProjects]);
 
-  // Klaviatura qısayolu: "/" basıb yeni dublaj aç
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement).tagName;
@@ -52,7 +57,11 @@ export default function DashboardPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
+      const token = await getToken();
+      const res = await fetch(`${API}/api/projects/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (res.ok) {
         setProjects((prev) => prev.filter((p) => p.id !== id));
         toast.success("Layihə silindi");
