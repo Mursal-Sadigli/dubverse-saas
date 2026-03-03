@@ -1,49 +1,48 @@
 import { Router, Request, Response } from "express";
 import { requireAuth } from "../middleware/auth";
-import { getProject, getProjectsByUser, deleteProject, mapProject } from "../lib/supabase";
+import { getProject, getProjectsByUser, deleteProject, updateProject, mapProject } from "../lib/supabase";
 
 const router = Router();
+const id = (req: Request) => req.params.id as string;
 
-// GET /api/projects — all projects for user
+// GET /api/projects
 router.get("/", requireAuth, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).userId;
-    const rows = await getProjectsByUser(userId);
+    const rows = await getProjectsByUser((req as any).userId);
     res.json({ projects: rows.map(mapProject) });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-// GET /api/projects/:id — single project
+// GET /api/projects/:id
 router.get("/:id", requireAuth, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).userId;
-    const row = await getProject(req.params.id);
-    if (!row || row.user_id !== userId) {
-      res.status(404).json({ error: "Project not found" });
-      return;
-    }
+    const row = await getProject(id(req));
+    if (!row || row.user_id !== (req as any).userId) { res.status(404).json({ error: "Not found" }); return; }
     res.json(mapProject(row));
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err: any) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/projects/:id/cancel
+router.post("/:id/cancel", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const row = await getProject(id(req));
+    if (!row || row.user_id !== (req as any).userId) { res.status(404).json({ error: "Not found" }); return; }
+    if (["completed", "failed", "cancelled"].includes(row.status)) {
+      res.status(400).json({ error: `Cannot cancel — status is already: ${row.status}` }); return;
+    }
+    await updateProject(id(req), { status: "cancelled" });
+    res.json({ success: true });
+  } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
 // DELETE /api/projects/:id
 router.delete("/:id", requireAuth, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).userId;
-    const row = await getProject(req.params.id);
-    if (!row || row.user_id !== userId) {
-      res.status(404).json({ error: "Project not found" });
-      return;
-    }
-    await deleteProject(req.params.id);
+    const row = await getProject(id(req));
+    if (!row || row.user_id !== (req as any).userId) { res.status(404).json({ error: "Not found" }); return; }
+    await deleteProject(id(req));
     res.json({ success: true });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
 export default router;

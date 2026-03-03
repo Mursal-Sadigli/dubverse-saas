@@ -37,6 +37,7 @@ export async function createProject(input: {
   videoPath?: string;
   youtubeUrl?: string;
   thumbnailUrl?: string;
+  voiceId?: string;
 }) {
   const { data, error } = await supabase
     .from("projects")
@@ -48,6 +49,7 @@ export async function createProject(input: {
       video_path: input.videoPath,
       youtube_url: input.youtubeUrl,
       thumbnail_url: input.thumbnailUrl,
+      voice_id: input.voiceId ?? null,
       status: "uploading",
     })
     .select()
@@ -68,6 +70,7 @@ export async function updateProject(id: string, fields: Record<string, any>) {
     thumbnailUrl: "thumbnail_url",
     sourceLanguage: "source_language",
     targetLanguage: "target_language",
+    voiceId: "voice_id",
   };
   for (const [k, v] of Object.entries(fields)) {
     if (k === "subtitles") continue; // handled separately
@@ -127,6 +130,7 @@ export function mapProject(row: any) {
     youtubeUrl: row.youtube_url,
     thumbnailUrl: row.thumbnail_url,
     error: row.error,
+    voiceId: row.voice_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     subtitles: (row.subtitles ?? [])
