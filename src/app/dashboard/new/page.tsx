@@ -153,10 +153,10 @@ export default function NewDubPage() {
                   <span className="text-xs font-semibold leading-tight">{v.name}</span>
                   <span className="text-[10px] text-muted-foreground">{v.gender || v.category}</span>
                   {v.previewUrl && (
-                    <button type="button" onClick={(e) => { e.stopPropagation(); playPreview(v.previewUrl); }}
-                      className="mt-1 text-[10px] text-violet-400 hover:text-violet-300 underline underline-offset-2">
+                    <span role="button" tabIndex={0} onClick={(e) => { e.stopPropagation(); playPreview(v.previewUrl); }}
+                      className="mt-1 text-[10px] text-violet-400 hover:text-violet-300 underline underline-offset-2 cursor-pointer">
                       ▶ Dinlə
-                    </button>
+                    </span>
                   )}
                 </button>
               ))}
