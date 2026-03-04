@@ -23,10 +23,14 @@ export async function generateTTSSegment(
   const selectedVoice = voiceId || VOICE_ID;
   logPipeline(projectId, `ElevenLabs TTS seg ${index} [${selectedVoice}]: "${text.substring(0, 50)}"`);
 
+  if (!process.env.ELEVENLABS_API_KEY) {
+    throw new Error("ELEVENLABS_API_KEY is missing in environment variables");
+  }
+
   try {
     const audioData = await client.textToSpeech.convert(selectedVoice, {
       text,
-      model_id: "eleven_turbo_v2_5",
+      model_id: "eleven_multilingual_v2", // More widely supported than turbo
       output_format: "mp3_44100_128",
       voice_settings: {
         stability: 0.50,         // balanced for natural tone
