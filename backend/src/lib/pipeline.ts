@@ -317,7 +317,7 @@ async function performDubbing(
   const mixInputs = segmentPaths.map((_, i) => `[s${i}]`).join("");
   const n = segmentPaths.length;
   filterParts.push(
-    `[0:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=0[bg];` +
+    `[0:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=0.15[bg];` +
     `[bg]${mixInputs}amix=inputs=${n + 1}:duration=first:dropout_transition=2,volume=${n + 1}[mixed];` +
     `[mixed]loudnorm=I=-23:TP=-1.5:LRA=11[out]`
   );

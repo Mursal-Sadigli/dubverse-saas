@@ -1,10 +1,9 @@
-"use client";
-
 import { useState, useCallback } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { Pencil, Check, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import WaveformTimeline from "./WaveformTimeline";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -20,6 +19,7 @@ interface Subtitle {
 
 interface SubtitleEditorProps {
   subtitles: Subtitle[];
+  audioUrl?: string;
   onChange?: (updated: Subtitle) => void;
 }
 
@@ -71,7 +71,7 @@ function EditableCell({ value, onSave }: { value: string; onSave: (v: string) =>
   );
 }
 
-export default function SubtitleEditor({ subtitles, onChange }: SubtitleEditorProps) {
+export default function SubtitleEditor({ subtitles, audioUrl, onChange }: SubtitleEditorProps) {
   const { getToken } = useAuth();
 
   const saveField = useCallback(async (id: string, field: "text" | "translatedText", value: string) => {
@@ -86,7 +86,10 @@ export default function SubtitleEditor({ subtitles, onChange }: SubtitleEditorPr
   }, [getToken]);
 
   return (
-    <div className="rounded-2xl border bg-card overflow-hidden">
+    <div className="space-y-4">
+      {audioUrl && <WaveformTimeline url={audioUrl} />}
+      
+      <div className="rounded-2xl border bg-card overflow-hidden">
       {/* Header */}
       <div className="grid grid-cols-[80px_60px_1fr_1fr] gap-3 px-4 py-3 border-b bg-muted/40 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
         <span>Vaxt</span>
@@ -132,6 +135,7 @@ export default function SubtitleEditor({ subtitles, onChange }: SubtitleEditorPr
           💡 Hər hücrəyə basıb redaktə edin · <kbd className="font-mono">Ctrl+Enter</kbd> saxla · <kbd className="font-mono">Esc</kbd> ləğv et
         </div>
       )}
+      </div>
     </div>
   );
 }

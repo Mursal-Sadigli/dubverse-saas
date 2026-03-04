@@ -199,6 +199,31 @@ export default function ProjectPage() {
     } catch { toast.error("Ayarlar saxlanmadı"); }
   };
 
+  const downloadSRT = async () => {
+    if (!project) return;
+    try {
+      const token = await getToken();
+      const res = await fetch(`${API}/api/video/${id}/srt`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `subtitles_${id}.srt`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        toast.success("SRT endirilir...");
+      } else {
+        toast.error("SRT endirilə bilmədi");
+      }
+    } catch {
+      toast.error("Şəbəkə xətası");
+    }
+  };
+
   const isProcessing = project ? !["completed", "failed", "cancelled"].includes(project.status) : false;
 
   const statusMsg: Record<string, string> = {
@@ -231,12 +256,26 @@ export default function ProjectPage() {
 
       <main className="container max-w-3xl flex-1 pb-16 pt-28 px-4 mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-1">{project.name}</h1>
-          <p className="text-sm text-muted-foreground">
-            {project.sourceLanguage?.toUpperCase()} → {project.targetLanguage?.toUpperCase()}
-            {project.createdAt && ` · ${formatDate(project.createdAt)}`}
-          </p>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-1">{project.name}</h1>
+            <p className="text-sm text-muted-foreground">
+              {project.sourceLanguage?.toUpperCase()} → {project.targetLanguage?.toUpperCase()}
+              {project.createdAt && ` · ${formatDate(project.createdAt)}`}
+            </p>
+          </div>
+          
+          {(project.subtitles?.length || 0) > 0 && (
+            <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={downloadSRT}
+                className="rounded-xl border-violet-500/30 text-violet-400 hover:bg-violet-500/10 self-start"
+            >
+              <Download className="size-4 mr-2" />
+              SRT Endir
+            </Button>
+          )}
         </div>
 
         {/* Step Progress */}
