@@ -1,0 +1,9 @@
+[2026-03-04T16:15:10.230Z] Pipeline started.
+[2026-03-04T16:15:10.976Z] Downloading YouTube: https://youtube.com/shorts/0mrP00wDFls?si=AnAA9z7wAyaaJ2GH
+[2026-03-04T16:15:35.017Z] ElevenLabs TTS seg 0 [2EiwWnXFnvU5JabPnv8n]: "Hiçbir şey bilmiyordum."
+[2026-03-04T16:15:37.238Z] ❌ ElevenLabs seg 0 failed: Status code: 401
+Body: {}
+[2026-03-04T16:16:14.833Z] Pipeline started.
+[2026-03-04T16:16:24.933Z] ElevenLabs TTS seg 0 [2EiwWnXFnvU5JabPnv8n]: "Hiçbir şey bilmiyordum."
+[2026-03-04T16:17:01.331Z] Pipeline started.
+[2026-03-04T16:17:01.699Z] Already running (cancelled). Aborted.

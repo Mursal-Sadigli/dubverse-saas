@@ -12,8 +12,7 @@ import UploadZone from "@/components/UploadZone";
 import { SUPPORTED_LANGUAGES } from "@/lib/types";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import { API } from "@/lib/constants";
 
 interface Voice { id: string; name: string; category: string; gender: string | null; previewUrl: string | null }
 

@@ -11,8 +11,7 @@ import { Download, Volume2, FileText, Film, AlertCircle, RefreshCw, Loader2, XCi
 import { formatDate, cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import { API } from "@/lib/constants";
 
 export default function ProjectPage() {
   const { id } = useParams<{ id: string }>();

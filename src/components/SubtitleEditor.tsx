@@ -4,8 +4,7 @@ import { Pencil, Check, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import WaveformTimeline from "./WaveformTimeline";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import { API } from "../lib/constants";
 
 interface Subtitle {
   id: string;
