@@ -30,45 +30,65 @@ const upload = multer({
 
 // POST /api/upload
 router.post("/", requireAuth, upload.single("file"), async (req: Request, res: Response) => {
+  let localFilePath: string | undefined;
   try {
     const userId = (req as any).userId;
-    const { name, sourceLanguage, targetLanguage, youtubeUrl } = req.body;
+    const { name, sourceLanguage, targetLanguage, youtubeUrl, voiceId } = req.body;
 
     if (!name || !sourceLanguage || !targetLanguage) {
       res.status(400).json({ error: "name, sourceLanguage, targetLanguage are required" });
       return;
     }
 
-    let videoPath: string | undefined;
-    let thumbnailUrl: string | undefined;
-    let finalYoutubeUrl: string | undefined;
+    localFilePath = req.file?.path;
 
-    if (req.file) {
-      videoPath = req.file.path;
-    } else if (youtubeUrl) {
-      finalYoutubeUrl = youtubeUrl;
-      videoPath = `youtube:${youtubeUrl}`;
-
-      // Extract thumbnail from YouTube URL
-      const match = youtubeUrl.match(/(?:v=|youtu\.be\/|shorts\/)([a-zA-Z0-9_-]{11})/);
-      if (match) thumbnailUrl = `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
-    } else {
-      res.status(400).json({ error: "Either file or youtubeUrl is required" });
-      return;
-    }
-
+    // 1. Create the project entry first to get an ID
     const project = await createProject({
       userId,
       name,
       sourceLanguage,
       targetLanguage,
-      videoPath,
-      youtubeUrl: finalYoutubeUrl,
-      thumbnailUrl,
+      voiceId,
+      youtubeUrl,
     });
 
-    res.json({ projectId: project.id, project: mapProject(project) });
+    let videoPath: string | undefined;
+    let thumbnailUrl: string | undefined;
+
+    // 2. Handle the media
+    if (req.file) {
+      const { uploadFile } = await import("../lib/storage");
+      const { unlink } = await import("fs/promises");
+      
+      // Define a clean storage path: project_id/video.mp4
+      const storagePath = `${project.id}/video.mp4`;
+      
+      console.log(`[UPLOAD] Persisting local file ${req.file.path} to storage: ${storagePath}`);
+      await uploadFile(req.file.path, storagePath);
+      
+      videoPath = storagePath;
+      
+      // Cleanup local temp file
+      await unlink(req.file.path).catch(err => console.error("[UPLOAD] Temp file cleanup failed:", err));
+      localFilePath = undefined; // marked as deleted
+    } else if (youtubeUrl) {
+      videoPath = `youtube:${youtubeUrl}`;
+      const match = youtubeUrl.match(/(?:v=|youtu\.be\/|shorts\/)([a-zA-Z0-9_-]{11})/);
+      if (match) thumbnailUrl = `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
+    }
+
+    // 3. Update project with final paths
+    const { updateProject } = await import("../lib/supabase");
+    await updateProject(project.id, { videoPath, thumbnailUrl });
+
+    res.json({ projectId: project.id, message: "Project created and media persisted" });
   } catch (err: any) {
+    console.error("[UPLOAD ERROR]", err);
+    // Cleanup local file if it still exists on error
+    if (localFilePath && existsSync(localFilePath)) {
+       const { unlinkSync } = await import("fs");
+       try { unlinkSync(localFilePath); } catch {}
+    }
     res.status(500).json({ error: err.message });
   }
 });
