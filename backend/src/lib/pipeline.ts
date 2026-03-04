@@ -277,16 +277,36 @@ async function performDubbing(
     const pct = 70 + Math.round((done / total) * 18);
     emitProgress(projectId, { step: "dubbing", percent: pct, message: `TTS: ${done}/${total} segment` });
 
+    // 1. Map legacy ElevenLabs IDs to OpenAI
+    const LEGACY_MAP: Record<string, string> = {
+      "2EiwWnXFnvU5JabPnv8n": "onyx",  // Clyde -> Onyx (Male)
+      "21m00Tcm4TlvDq8ikWAM": "nova",   // Rachel -> Nova (Female)
+      "AZnzlk1Xhk9WOUz36v9y": "onyx",  // Nicole -> Onyx (Male)
+      "EXAVITQu4vr4xnSDxMaL": "nova",   // Sarah -> Nova (Female)
+      "ErXw9S1S9.5t9m8t": "onyx",      // Antoni -> Onyx (Male)
+    };
+
+    const getCleanVoice = (vid?: string) => {
+        if (!vid) return null;
+        if (LEGACY_MAP[vid]) return LEGACY_MAP[vid];
+        // If it looks like an ElevenLabs ID (long alphanumeric), default to gender-safe OpenAI
+        if (vid.length > 15) return null; 
+        return vid;
+    };
+
     // Pick voice for this speaker
-    let voiceId = defaultVoiceId;
-    const sid = sub.speaker_id || 1;
+    let voiceId = getCleanVoice(defaultVoiceId) || "nova";
+    const sid = String(sub.speaker_id || 1);
     
-    if (speakerVoices[sid]) {
-        voiceId = speakerVoices[sid];
+    // Check if user manually selected a voice in the UI
+    const manualVoice = getCleanVoice(speakerVoices[sid]);
+    
+    if (manualVoice) {
+        voiceId = manualVoice;
     } else if (sub.speaker_gender === 'male') {
-        voiceId = "onyx"; // OpenAI Male
+        voiceId = "onyx"; // Male
     } else if (sub.speaker_gender === 'female') {
-        voiceId = "nova"; // OpenAI Female
+        voiceId = "nova"; // Female
     }
 
     await generateTTSSegment(sub.translatedText, rawPath, targetLang, projectId, i, voiceId);

@@ -15,6 +15,7 @@ export async function generateTTSSegment(
   const selectedVoice = voiceId || DEFAULT_VOICE_ID;
   const apiKey = process.env.OPENAI_API_KEY;
 
+  console.log(`[TTS:${projectId}] Seg ${index}: Requesting voice "${selectedVoice}" for text: "${text.substring(0, 30)}..."`);
   logPipeline(projectId, `TTS seg ${index} [${selectedVoice}]: "${text.substring(0, 50)}"`);
 
   // Attempt 1: OpenAI (Premium Quality)
@@ -37,20 +38,23 @@ export async function generateTTSSegment(
       if (response.ok) {
         const arrayBuffer = await response.arrayBuffer();
         await saveBufferToFile(Buffer.from(arrayBuffer), outputPath);
-        logPipeline(projectId, `Seg ${index} done (OpenAI) ✅`);
+        console.log(`[TTS:${projectId}] Seg ${index} SUCCESS (OpenAI - ${selectedVoice})`);
         return;
       } else {
         const errText = await response.text();
+        console.error(`[TTS:${projectId}] Seg ${index} OpenAI FAILED (${response.status}): ${errText}`);
         logPipeline(projectId, `⚠️ OpenAI failed (${response.status}), falling back to Google...`);
       }
-    } catch (err) {
+    } catch (err: any) {
+      console.error(`[TTS:${projectId}] Seg ${index} OpenAI Error:`, err.message);
       logPipeline(projectId, `⚠️ OpenAI error, falling back to Google...`);
     }
   }
 
   // Attempt 2: Google Translate TTS (100% Free Fallback)
   try {
-    const encoded = encodeURIComponent(text.substring(0, 200)); // Google TTS limit is 200 chars per request
+    console.log(`[TTS:${projectId}] Seg ${index} FALLBACK: Using Google Translate TTS (voice: ${selectedVoice})`);
+    const encoded = encodeURIComponent(text.substring(0, 200)); 
     const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encoded}&tl=${lang}&client=tw-ob`;
     
     const response = await fetch(googleUrl);
@@ -60,6 +64,7 @@ export async function generateTTSSegment(
     await saveBufferToFile(Buffer.from(arrayBuffer), outputPath);
     logPipeline(projectId, `Seg ${index} done (Google Fallback) 🌐`);
   } catch (err: any) {
+    console.error(`[TTS:${projectId}] Seg ${index} FATAL: All TTS failed`, err.message);
     logPipeline(projectId, `❌ All TTS attempts failed for seg ${index}: ${err.message}`);
     throw err;
   }

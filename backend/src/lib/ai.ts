@@ -62,41 +62,50 @@ export async function diarizeSpeakers(subtitles: any[]): Promise<any[]> {
   const transcript = subtitles.map((s, i) => `[${i + 1}] ${s.text}`).join("\n");
 
   const SYSTEM_PROMPT = `You are an expert at dialogue analysis and speaker diarization.
-Analyze the provided numbered transcript and identify different speakers. 
-Assign a numerical Speaker ID (1, 2, 3...) and estimate their gender (male/female).
+Analyze the provided numbered transcript. Your goal is to detect different speakers and their likely gender (male/female).
 
 Strict Analysis Rules:
-1. Look for Names & Titles: "Bəy", "Müəllim", "Mr." are male. "Xanım", "Müəllimə", "Mrs.", "Ms." are female.
-2. Analyze Social Context: Professional titles, address forms, and conversational role can provide clues.
-3. Language Clues: In gendered languages (RU, ES, FR), use verb endings or adjectives.
-4. Default Logic: If there is NO clue at all, guess 'male' for authoritative/narrative roles and 'female' for supportive/narrative roles, but prioritize 'unknown' logic if possible (defaulting to 'male' is statistically safer for generic narrators).
-5. Output ONLY the mapping in format: [n] SpeakerID Gender
-Example: [1] 1 male
+1. Identify Speaker Changes: Look for conversational turns, questions/answers, and logical flow.
+2. Gender Detection:
+   - Names/Titles: "Bəy", "Müəllim", "Mr.", "John" -> male. "Xanım", "Müəllimə", "Mrs.", "Mary" -> female.
+   - Context: In many languages, verb endings or adjectives indicate gender.
+   - Social Roles: Infer based on how they address each other.
+3. Multiple Speakers: Do not assume everyone is Speaker 1. If you see a back-and-forth, assign Speaker 1 and Speaker 2.
+
+Output ONLY the mapping in format: [n] SpeakerID Gender
+Example:
+[1] 1 male
+[2] 2 female
+[3] 1 male
 No extra text.`;
 
-  const response = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
-    messages: [
-      { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: transcript },
-    ],
-    temperature: 0.1,
-  });
+  try {
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: transcript },
+      ],
+      temperature: 0.1,
+    });
 
-  const content = response.choices[0]?.message?.content || "";
-  const mapped = [...subtitles];
-  
-  for (const line of content.split("\n").filter(l => l.trim())) {
-    const match = line.match(/^\[(\d+)\]\s*(\d+)\s*(male|female)?/i);
-    if (match) {
-      const index = parseInt(match[1]) - 1;
-      if (mapped[index]) {
-        mapped[index].speaker_id = parseInt(match[2]);
-        if (match[3]) mapped[index].speaker_gender = match[3].toLowerCase();
+    const content = response.choices[0]?.message?.content || "";
+    const mapped = [...subtitles];
+    
+    for (const line of content.split("\n").filter(l => l.trim())) {
+      const match = line.match(/^\[(\d+)\]\s*(\d+)\s*(male|female)?/i);
+      if (match) {
+        const index = parseInt(match[1]) - 1;
+        if (mapped[index]) {
+          mapped[index].speaker_id = parseInt(match[2]);
+          if (match[3]) mapped[index].speaker_gender = match[3].toLowerCase();
+        }
       }
     }
+    // Final pass: ensure every sub has a speaker_id
+    return mapped.map(m => ({ ...m, speaker_id: m.speaker_id || 1 }));
+  } catch (err) {
+    console.error("[diarization] AI error:", err);
+    return subtitles.map(m => ({ ...m, speaker_id: 1 }));
   }
-
-  // Fallback: Default to Speaker 1 if not identified
-  return mapped.map(m => ({ ...m, speaker_id: m.speaker_id || 1 }));
 }
