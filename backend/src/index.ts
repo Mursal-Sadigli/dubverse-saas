@@ -18,11 +18,27 @@ import inngestRouter from "./routes/inngest";
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  process.env.FRONTEND_URL,
+].filter(Boolean) as string[];
+
+// Remove trailing slashes from allowed origins for exact matching
+const normalizedOrigins = allowedOrigins.map(origin => origin.replace(/\/$/, ""));
+
 app.use(cors({
-  origin: [
-    "http://localhost:3000",
-    process.env.FRONTEND_URL,
-  ].filter(Boolean) as string[],
+  origin: (origin, callback) => {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const normalizedOrigin = origin.replace(/\/$/, "");
+    if (normalizedOrigins.indexOf(normalizedOrigin) !== -1 || process.env.NODE_ENV !== "production") {
+      callback(null, true);
+    } else {
+      console.warn(`[CORS] Rejected origin: ${origin}. Allowed: ${normalizedOrigins.join(", ")}`);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
 }));
 
