@@ -1,0 +1,239 @@
+[2026-03-04T05:19:36.315Z] Pipeline started.
+[2026-03-04T05:19:37.054Z] Downloading YouTube: https://youtube.com/shorts/0mrP00wDFls?si=BEqT4eBmPP2k2GLQ
+[2026-03-04T05:20:01.037Z] ElevenLabs TTS seg 0 [2EiwWnXFnvU5JabPnv8n]: "Hiçbir şey bilmiyordum başladığım zaman."
+[2026-03-04T05:20:01.871Z] Seg 0 done (51035 bytes) ✅
+[2026-03-04T05:20:02.116Z] Stretching seg 0: 3.16s→1.64s (rate=1.40)
+[2026-03-04T05:20:02.461Z] ElevenLabs TTS seg 1 [2EiwWnXFnvU5JabPnv8n]: "Ben 19 yaşındayken Facebook'u başlattım, hatırlayı"
+[2026-03-04T05:20:03.019Z] Seg 1 done (64409 bytes) ✅
+[2026-03-04T05:20:03.123Z] Stretching seg 1: 4.00s→2.80s (rate=1.40)
+[2026-03-04T05:20:03.509Z] ElevenLabs TTS seg 2 [2EiwWnXFnvU5JabPnv8n]: "Yani muhtemelen çoğunuzun yaşı veya daha genç."
+[2026-03-04T05:20:03.995Z] Seg 2 done (56886 bytes) ✅
+[2026-03-04T05:20:04.110Z] Stretching seg 2: 3.53s→3.72s (rate=0.95)
+[2026-03-04T05:20:04.479Z] ElevenLabs TTS seg 3 [21m00Tcm4TlvDq8ikWAM]: "Aslında bu izleyici kitlesi için genç olurdun."
+[2026-03-04T05:20:04.943Z] Seg 3 done (41004 bytes) ✅
+[2026-03-04T05:20:05.045Z] Stretching seg 3: 2.53s→2.04s (rate=1.24)
+[2026-03-04T05:20:05.406Z] ElevenLabs TTS seg 4 [2EiwWnXFnvU5JabPnv8n]: "İş hakkında hiçbir şey bilmiyordum."
+[2026-03-04T05:20:05.911Z] Seg 4 done (37660 bytes) ✅
+[2026-03-04T05:20:06.027Z] Stretching seg 4: 2.32s→3.24s (rate=0.80)
+[2026-03-04T05:20:06.378Z] ElevenLabs TTS seg 5 [2EiwWnXFnvU5JabPnv8n]: "Bir şirket kurarken çok şey yanlış gider,"
+[2026-03-04T05:20:06.936Z] Seg 5 done (44347 bytes) ✅
+[2026-03-04T05:20:07.044Z] Stretching seg 5: 2.74s→2.56s (rate=1.07)
+[2026-03-04T05:20:07.442Z] ElevenLabs TTS seg 6 [2EiwWnXFnvU5JabPnv8n]: "ve insanlar genellikle, kaçınmanız gereken hatalar"
+[2026-03-04T05:20:08.085Z] Seg 6 done (116236 bytes) ✅
+[2026-03-04T05:20:08.178Z] Stretching seg 6: 7.24s→4.24s (rate=1.40)
+[2026-03-04T05:20:08.595Z] ElevenLabs TTS seg 7 [2EiwWnXFnvU5JabPnv8n]: "Cevabım, hatalardan kaçınmaya çalışmayın,"
+[2026-03-04T05:20:09.062Z] Seg 7 done (48527 bytes) ✅
+[2026-03-04T05:20:09.174Z] Stretching seg 7: 3.00s→3.96s (rate=0.80)
+[2026-03-04T05:20:09.596Z] ElevenLabs TTS seg 8 [2EiwWnXFnvU5JabPnv8n]: "çünkü tonla hata yapacaksınız."
+[2026-03-04T05:20:10.050Z] Seg 8 done (36824 bytes) ✅
+[2026-03-04T05:20:10.171Z] Stretching seg 8: 2.27s→1.54s (rate=1.40)
+[2026-03-04T05:20:10.546Z] ElevenLabs TTS seg 9 [2EiwWnXFnvU5JabPnv8n]: "Önemli olan, yaptığınız hatalardan hızlı öğrenmek "
+[2026-03-04T05:20:11.073Z] Seg 9 done (84889 bytes) ✅
+[2026-03-04T05:20:11.171Z] Stretching seg 9: 5.28s→6.38s (rate=0.83)
+[2026-03-04T05:20:11.643Z] ElevenLabs TTS seg 10 [2EiwWnXFnvU5JabPnv8n]: "Facebook'un var olduğu her yıl, bizi öldürebilecek"
+[2026-03-04T05:20:12.148Z] Seg 10 done (67753 bytes) ✅
+[2026-03-04T05:20:12.243Z] Stretching seg 10: 4.21s→4.58s (rate=0.92)
+[2026-03-04T05:20:12.715Z] ElevenLabs TTS seg 11 [2EiwWnXFnvU5JabPnv8n]: "veya ilerlemeye devam etmek ve çok ilerleme kaydet"
+[2026-03-04T05:20:13.272Z] Seg 11 done (94084 bytes) ✅
+[2026-03-04T05:20:13.380Z] Stretching seg 11: 5.85s→4.46s (rate=1.31)
+[2026-03-04T05:20:13.804Z] ElevenLabs TTS seg 12 [2EiwWnXFnvU5JabPnv8n]: "Ama geri dönersin ve öğrenirsin."
+[2026-03-04T05:20:14.249Z] Seg 12 done (36824 bytes) ✅
+[2026-03-04T05:20:14.355Z] Stretching seg 12: 2.27s→2.08s (rate=1.09)
+[2026-03-04T05:20:14.700Z] ElevenLabs TTS seg 13 [2EiwWnXFnvU5JabPnv8n]: "Hiçbir şey imkansız değil."
+[2026-03-04T05:20:15.229Z] Seg 13 done (34316 bytes) ✅
+[2026-03-04T05:20:15.346Z] Stretching seg 13: 2.12s→1.52s (rate=1.39)
+[2026-03-04T05:20:15.689Z] ElevenLabs TTS seg 14 [2EiwWnXFnvU5JabPnv8n]: "Duvarlardan geçmeye devam etmen yeterli."
+[2026-03-04T05:20:16.163Z] Seg 14 done (46437 bytes) ✅
+[2026-03-04T05:20:16.466Z] Running FFmpeg: C:\Users\fullm\Downloads\dubverse-saas\backend\node_modules\ffmpeg-static\ffmpeg.exe -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\audio.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_0.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_1.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_2.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_3.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_4.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_5.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_6.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_7.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_8.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_9.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_10.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_11.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_12.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_13.mp3 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_14.mp3 -filter_complex [1:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=0|0[s0];[2:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=1960|1960[s1];[3:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=5100|5100[s2];[4:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=8840|8840[s3];[5:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=11080|11080[s4];[6:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=14540|14540[s5];[7:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=17200|17200[s6];[8:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=21860|21860[s7];[9:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=25820|25820[s8];[10:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=27360|27360[s9];[11:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=34380|34380[s10];[12:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=38960|38960[s11];[13:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=43700|43700[s12];[14:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=46100|46100[s13];[15:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=47860|47860[s14];[0:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=0[bg];[bg][s0][s1][s2][s3][s4][s5][s6][s7][s8][s9][s10][s11][s12][s13][s14]amix=inputs=16:duration=first:dropout_transition=2,volume=16[mixed];[mixed]loudnorm=I=-23:TP=-1.5:LRA=11[out] -map [out] -acodec libmp3lame -ar 44100 -b:a 192k -y C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\dubbed_audio.mp3
+[2026-03-04T05:20:17.092Z] FFmpeg Err: Input #0, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\audio.mp3':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    encoder         : Lavf60.16.100
+  Duration: 00:00:51.25, start: 0.025057, bitrate: 128 kb/s
+  Stream #0:0: Audio: mp3, 44100 Hz, stereo, fltp, 128 kb/s
+    Metadata:
+      encoder         : Lavc60.31
+
+[2026-03-04T05:20:17.094Z] FFmpeg Err: Input #1, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_0.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:00:02.27, start: 0.025057, bitrate: 64 kb/s
+  Stream #1:0: Audio: mp3, 44100 Hz, mono, fltp, 64 kb/s
+Input #2, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_1.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:00:02.87, start: 0.025057, bitrate: 64 kb/s
+  Stream #2:0: Audio: mp3, 44100 Hz, mono, fltp, 64 kb/s
+
+[2026-03-04T05:20:17.096Z] FFmpeg Err: Input #3, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_2.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:00:03.71, start: 0.025057, bitrate: 64 kb/s
+  Stream #3:0: Audio: mp3, 44100 Hz, mono, fltp, 64 kb/s
+Input #4, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_3.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:00:02.06, start: 0.025057, bitrate: 64 kb/s
+  Stream #4:0: Audio: mp3, 44100 Hz, mono, fltp, 64 kb/s
+
+[2026-03-04T05:20:17.098Z] FFmpeg Err: Input #5, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_4.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:00:02.87, start: 0.025057, bitrate: 64 kb/s
+  Stream #5:0: Audio: mp3, 44100 Hz, mono, fltp, 64 kb/s
+Input #6, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_5.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:00:02.56, start: 0.025057, bitrate: 64 kb/s
+  Stream #6:0: Audio: mp3, 44100 Hz, mono, fltp, 64 kb/s
+Input #7, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_6.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:00:05.17, start: 0.025057, bitrate: 64 kb/s
+  Stream #7:0: Audio: mp3, 44100 Hz, mono, fltp, 64 kb/s
+
+[2026-03-04T05:20:17.100Z] FFmpeg Err: Input #8, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_7.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:00:03.74, start: 0.025057, bitrate: 64 kb/s
+  Stream #8:0: Audio: mp3, 44100 Hz, mono, fltp, 64 kb/s
+Input #9, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_8.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:00:01.65, start: 0.025057, bitrate: 65 kb/s
+  Stream #9:0: Audio: mp3, 44100 Hz, mono, fltp, 64 kb/s
+Input #10, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_9.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 
+[2026-03-04T05:20:17.103Z] FFmpeg Err: 00:00:06.37, start: 0.025057, bitrate: 64 kb/s
+  Stream #10:0: Audio: mp3, 44100 Hz, mono, fltp, 64 kb/s
+Input #11, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_10.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:00:04.57, start: 0.025057, bitrate: 64 kb/s
+  Stream #11:0: Audio: mp3, 44100 Hz, mono, fltp, 64 kb/s
+Input #12, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_11.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:00:04.47, start: 0.025057, bitrate: 64 kb/s
+  Stream #12:0: Audio: mp3, 44100 Hz, mono, fltp, 64 kb/s
+
+[2026-03-04T05:20:17.105Z] FFmpeg Err: Input #13, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_12.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:00:02.09, start: 0.025057, bitrate: 64 kb/s
+  Stream #13:0: Audio: mp3, 44100 Hz, mono, fltp, 64 kb/s
+Input #14, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_13.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:00:01.54, start: 0.025057, bitrate: 65 kb/s
+  Stream #14:0: Audio: mp3, 44100 Hz, mono, fltp, 64 kb/s
+Input #15, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\segments\seg_14.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:00:02.87, start: 0.025057, bitrate: 64 kb/s
+  Stream #15:0: Audio: mp3, 44100 Hz, mono, fltp, 64 kb/s
+
+[2026-03-04T05:20:17.107Z] FFmpeg Err: Stream mapping:
+  Stream #0:0 (mp3float) -> aformat:default
+  Stream #1:0 (mp3float) -> aformat:default
+  Stream #2:0 (mp3float) -> aformat:default
+  Stream #3:0 (mp3float) -> aformat:default
+  Stream #4:0 (mp3float) -> aformat:default
+  Stream #5:0 (mp3float) -> aformat:default
+  Stream #6:0 (mp3float) -> aformat:default
+  Stream #7:0 (mp3float) -> aformat:default
+  Stream #8:0 (mp3float) -> aformat:default
+  Stream #9:0 (mp3float) -> aformat:default
+  Stream #10:0 (mp3float) -> aformat:default
+  Stream #11:0 (mp3float) -> aformat:default
+  Stream #12:0 (mp3float) -> aformat:default
+  Stream #13:0 (mp3float) -> aformat:default
+  Stream #14:0 (mp3float) -> aformat:default
+  Stream #15:0 (mp3float) -> aformat:default
+  loudnorm:default -> Stream #0:0 (libmp3lame)
+
+[2026-03-04T05:20:17.210Z] FFmpeg Err: Output #0, mp3, to 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\dubbed_audio.mp3':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    TSSE            : Lavf60.16.100
+  Stream #0:0
+[2026-03-04T05:20:17.213Z] FFmpeg Err: : Audio: mp3, 44100 Hz, stereo, fltp, 192 kb/s
+    Metadata:
+      encoder         : Lavc60.31.102 libmp3lame
+size=       0kB time=-00:00:00.02 bitrate=  -0.0kbits/s speed=N/A    
+[2026-03-04T05:20:17.676Z] FFmpeg Err: size=     158kB time=00:00:06.68 bitrate= 193.6kbits/s speed=11.8x    
+[2026-03-04T05:20:18.182Z] FFmpeg Err: size=     256kB time=00:00:13.79 bitrate= 152.0kbits/s speed=12.8x    
+[2026-03-04T05:20:18.686Z] FFmpeg Err: size=     256kB time=00:00:20.58 bitrate= 101.9kbits/s speed=  13x    
+[2026-03-04T05:20:19.185Z] FFmpeg Err: size=     512kB time=00:00:28.39 bitrate= 147.7kbits/s speed=13.7x    
+[2026-03-04T05:20:19.687Z] FFmpeg Err: size=     768kB time=00:00:36.67 bitrate= 171.5kbits/s speed=14.2x    
+[2026-03-04T05:20:20.189Z] FFmpeg Err: size=    1024kB time=00:00:45.37 bitrate= 184.9kbits/s speed=14.7x    
+[2026-03-04T05:20:20.434Z] FFmpeg Err: [out#0/mp3 @ 0000022d0dcd36c0] video:0kB audio:1201kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.062111%
+size=    1202kB time=00:00:51.27 bitrate= 192.0kbits/s speed=15.4x    
+
+[2026-03-04T05:20:22.389Z] Running FFmpeg: C:\Users\fullm\Downloads\dubverse-saas\backend\node_modules\ffmpeg-static\ffmpeg.exe -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\video.mp4 -i C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\dubbed_audio.mp3 -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -shortest -y C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\final_dubbed.mp4
+[2026-03-04T05:20:22.469Z] FFmpeg Err: Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\video.mp4':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    creation_time   : 2021-05-17T00:58:26.000000Z
+  Duration: 00:00:51.22, start: 0.000000, bitrate: 305 kb/s
+
+[2026-03-04T05:20:22.472Z] FFmpeg Err:   Stream #0:0[0x1](und): Video: h264 (Main) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 360x360 [SAR 1:1 DAR 1:1], 174 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
+    Metadata:
+      creation_time   : 2021-05-17T00:58:26.000000Z
+      handler_name    : ISO Media file produced by Google Inc. Created on: 05/16/2021.
+      vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](eng): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 128 kb/s (default)
+    Metadata:
+      creation_time   : 2021-05-17T00:58:26.000000Z
+      handler_name    : ISO Media file produced by Google Inc. Created on: 05/16/2021.
+      vendor_id       : [0][0][0][0]
+Input #1, mp3, from 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\dubbed_audio.mp3':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    encoder         : Lavf60.16.100
+  Duration: 00:00:51.25, start: 0.025057, bitrate: 192 kb/s
+  Stream #1:0: Audio: mp3, 44100 Hz, stereo, fltp, 192 kb/s
+    Metadata:
+      encoder         : Lavc60.31
+
+[2026-03-04T05:20:22.474Z] FFmpeg Err: Stream mapping:
+  Stream #0:0 -> #0:0 (copy)
+  Stream #1:0 -> #0:1 (mp3 (mp3float) -> aac (native))
+
+[2026-03-04T05:20:22.479Z] FFmpeg Err: Output #0, mp4, to 'C:\Users\fullm\Downloads\dubverse-saas\tmp\uploads\212a0489-f4f1-4eae-885e-124481e74ef4\final_dubbed.mp4':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    encoder         : Lavf60.16.100
+  Stream #0:0(und): Video: h264 (Main) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 360x360 [SAR 1:1 DAR 1:1], q=2-31, 174 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
+
+[2026-03-04T05:20:22.480Z] FFmpeg Err:     Metadata:
+      creation_time   : 2021-05-17T00:58:26.000000Z
+      handler_name    : ISO Media file produced by Google Inc. Created on: 05/16/2021.
+      vendor_id       : [0][0][0][0]
+  Stream #0:1: Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 192 kb/s
+    Metadata:
+      encoder         : Lavc60.31.102 aac
+size=       0kB time=N/A bitrate=N/A speed=N/A    
+[2026-03-04T05:20:22.973Z] FFmpeg Err: size=     256kB time=00:00:10.03 bitrate= 209.1kbits/s speed=  20x    
+[2026-03-04T05:20:23.475Z] FFmpeg Err: size=     768kB time=00:00:19.23 bitrate= 327.1kbits/s speed=19.2x    
+[2026-03-04T05:20:23.978Z] FFmpeg Err: size=    1024kB time=00:00:29.00 bitrate= 289.3kbits/s speed=19.3x    
+[2026-03-04T05:20:24.479Z] FFmpeg Err: size=    1536kB time=00:00:39.26 bitrate= 320.5kbits/s speed=19.6x    
+[2026-03-04T05:20:24.983Z] FFmpeg Err: size=    2048kB time=00:00:48.73 bitrate= 344.3kbits/s speed=19.4x    
+[2026-03-04T05:20:25.154Z] FFmpeg Err: [out#0/mp4 @ 000001a00970bec0] video:1088kB audio:1140kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 2.145990%
+
+[2026-03-04T05:20:25.157Z] FFmpeg Err: size=    2276kB time=00:00:51.20 bitrate= 364.2kbits/s speed=19.1x    
+[aac @ 000001a007f7b7c0] Qavg: 11126.195
+
+[2026-03-04T05:20:27.006Z] ✅ Pipeline finished successfully!

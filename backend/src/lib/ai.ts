@@ -63,13 +63,18 @@ export async function diarizeSpeakers(subtitles: any[]): Promise<any[]> {
 
   const SYSTEM_PROMPT = `You are an expert at dialogue analysis and speaker diarization.
 Analyze the provided numbered transcript and identify different speakers. 
-Assign a numerical Speaker ID (1, 2, 3...) to each line.
+Assign a numerical Speaker ID (1, 2, 3...) and estimate their gender (male/female).
 
-Rules:
-- Identify if multiple people are talking based on context, names, and turn-taking.
-- If it's a monologue, assign "1" to all lines.
-- Output ONLY the mapping in format: [n] SpeakerID
-- No extra text.`;
+Strict Analysis Rules:
+1. Look for Names: If a speaker is called by a name (e.g., "John", "Leyla"), use it to infer gender.
+2. Look for Honorifics: Words like "Mr.", "Mrs.", "Xanım", "Bəy", "Müəllimə" (female teacher in AZ), "Müəllim" (male teacher in AZ) are definitive.
+3. Pronouns: In English/Russian transcript, check for "he/she" or gendered verb endings.
+4. Voice Context: Use the conversational flow to distinguish turns.
+5. If truly unsure, guess 'male' for deeper voices and 'female' for higher ones if described, otherwise default to context clues.
+
+Output ONLY the mapping in format: [n] SpeakerID Gender
+Example: [1] 1 male
+No extra text.`;
 
   const response = await groq.chat.completions.create({
     model: "llama-3.3-70b-versatile",
@@ -84,11 +89,12 @@ Rules:
   const mapped = [...subtitles];
   
   for (const line of content.split("\n").filter(l => l.trim())) {
-    const match = line.match(/^\[(\d+)\]\s*(\d+)$/);
+    const match = line.match(/^\[(\d+)\]\s*(\d+)\s*(male|female)?/i);
     if (match) {
       const index = parseInt(match[1]) - 1;
       if (mapped[index]) {
         mapped[index].speaker_id = parseInt(match[2]);
+        if (match[3]) mapped[index].speaker_gender = match[3].toLowerCase();
       }
     }
   }

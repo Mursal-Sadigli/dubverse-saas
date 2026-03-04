@@ -93,7 +93,7 @@ export async function deleteProject(id: string) {
 
 export async function upsertSubtitles(
   projectId: string,
-  subtitles: Array<{ id: string; start: number; end: number; text: string; translatedText?: string; speaker_id?: number }>
+  subtitles: Array<{ id: string; start: number; end: number; text: string; translatedText?: string; speaker_id?: number; speaker_gender?: string }>
 ) {
   if (!subtitles.length) return;
 
@@ -109,6 +109,7 @@ export async function upsertSubtitles(
     text: s.text,
     translated_text: s.translatedText ?? null,
     speaker_id: s.speaker_id || 1,
+    speaker_gender: s.speaker_gender ?? null,
   }));
 
   const { error } = await supabase.from("subtitles").insert(rows);
@@ -145,6 +146,7 @@ export function mapProject(row: any) {
         text: s.text,
         translatedText: s.translated_text,
         speaker_id: s.speaker_id,
+        speaker_gender: s.speaker_gender,
       })),
   };
 }

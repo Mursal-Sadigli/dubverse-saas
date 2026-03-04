@@ -15,6 +15,7 @@ interface Subtitle {
   text: string;
   translatedText?: string;
   speaker_id?: number;
+  speaker_gender?: string;
 }
 
 interface SubtitleEditorProps {

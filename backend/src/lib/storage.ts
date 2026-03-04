@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import { createReadStream, existsSync } from "fs";
+import { createReadStream, existsSync, writeFileSync } from "fs";
 import { basename } from "path";
 
 const BUCKET = "dubverse-videos";
@@ -27,6 +27,17 @@ export async function uploadFile(localPath: string, storagePath: string): Promis
 
   if (error) throw new Error(`Storage upload failed: ${error.message}`);
   return storagePath;
+}
+
+/**
+ * Download a file from Supabase Storage to a local path.
+ */
+export async function downloadFile(storagePath: string, localPath: string): Promise<void> {
+  const { data, error } = await supabase.storage.from(BUCKET).download(storagePath);
+  if (error) throw new Error(`Storage download failed: ${error.message}`);
+  
+  const buffer = Buffer.from(await data.arrayBuffer());
+  writeFileSync(localPath, buffer);
 }
 
 /**

@@ -108,6 +108,39 @@ export default function ProjectPage() {
     }
   }, [project?.voiceSettings]);
 
+  /* ── Auto-assign voices based on gender hints ── */
+  useEffect(() => {
+    if (!project?.subtitles || voices.length === 0 || project.status !== 'uploading') return;
+    
+    // Only run if we don't have settings yet or they are very sparse
+    const currentCount = Object.keys(speakerVoices).length;
+    const speakerIds = Array.from(new Set(project.subtitles.map(s => s.speaker_id || 1)));
+    
+    if (currentCount < speakerIds.length) {
+      const newSettings = { ...speakerVoices };
+      let changed = false;
+
+      speakerIds.forEach(sid => {
+        if (!newSettings[sid]) {
+          const firstSub = project.subtitles.find(s => (s.speaker_id || 1) === sid);
+          if (firstSub?.speaker_gender === 'male') {
+            newSettings[sid] = "2EiwWnXFnvU5JabPnv8n"; // Clyde
+            changed = true;
+          } else if (firstSub?.speaker_gender === 'female') {
+            newSettings[sid] = "21m00Tcm4TlvDq8ikWAM"; // Rachel
+            changed = true;
+          }
+        }
+      });
+
+      if (changed) {
+        setSpeakerVoices(newSettings);
+        // Persist to DB automatically
+        saveVoiceSettings(null as any, null as any, newSettings);
+      }
+    }
+  }, [project?.subtitles, voices, project?.status]);
+
   /* ── Connect SSE when project is processing ── */
   useEffect(() => {
     if (!project) return;
@@ -152,8 +185,8 @@ export default function ProjectPage() {
     finally { setIsCancelling(false); }
   };
 
-  const saveVoiceSettings = async (idOfSpeaker: string, vId: string) => {
-    const newSettings = { ...speakerVoices, [idOfSpeaker]: vId };
+  const saveVoiceSettings = async (idOfSpeaker?: string | null, vId?: string | null, bulkSettings?: any) => {
+    const newSettings = bulkSettings || { ...speakerVoices, [idOfSpeaker as string]: vId };
     setSpeakerVoices(newSettings);
     try {
       const token = await getToken();
@@ -162,7 +195,7 @@ export default function ProjectPage() {
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ voiceSettings: newSettings }),
       });
-      toast.success("Səslər yeniləndi");
+      if (!bulkSettings) toast.success("Səslər yeniləndi");
     } catch { toast.error("Ayarlar saxlanmadı"); }
   };
 
@@ -262,31 +295,53 @@ export default function ProjectPage() {
           </div>
         </div>
 
-        {/* Speaker Voice Configuration */}
         {((project.subtitles?.length || 0) > 0) && (
           <div className="mb-6 rounded-2xl border bg-card p-6">
             <h3 className="text-sm font-bold flex items-center gap-2 mb-4">
               <Volume2 className="size-4 text-violet-500" /> Spiker Səsləri
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {Array.from(new Set(project.subtitles.map(s => s.speaker_id || 1))).sort().map(sid => (
-                <div key={sid} className="space-y-1.5 p-3 rounded-xl border bg-muted/20">
-                  <div className="flex justify-between items-center px-1">
-                    <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Spiker {sid}</span>
-                    <span className="text-[10px] text-violet-400 font-medium">ElevenLabs</span>
+              {Array.from(new Set(project.subtitles.map(s => s.speaker_id || 1))).sort().map(sid => {
+                const firstSub = project.subtitles.find(s => (s.speaker_id || 1) === sid);
+                const gender = firstSub?.speaker_gender;
+                const preview = firstSub?.text ? (firstSub.text.substring(0, 45) + "...") : "";
+                
+                return (
+                  <div key={sid} className="space-y-1.5 p-3 rounded-xl border bg-muted/20">
+                    <div className="flex justify-between items-center px-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Spiker {sid}</span>
+                        {gender && (
+                          <span className={cn(
+                            "text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase border",
+                            gender === 'male' ? "bg-blue-500/10 text-blue-500 border-blue-500/20" : "bg-pink-500/10 text-pink-500 border-pink-500/20"
+                          )}>
+                            {gender === 'male' ? "Kişi" : "Qadın"}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-violet-400 font-medium tracking-tight">ElevenLabs</span>
+                    </div>
+                    
+                    {preview && (
+                      <p className="px-1 text-[10px] text-muted-foreground italic line-clamp-1 mb-1" title={firstSub?.text}>
+                        "{preview}"
+                      </p>
+                    )}
+
+                    <select 
+                      className="w-full bg-background border rounded-lg h-9 px-2 text-xs font-medium outline-none focus:ring-1 focus:ring-violet-500"
+                      value={speakerVoices[sid] || project.voiceId || ""}
+                      onChange={(e) => saveVoiceSettings(String(sid), e.target.value)}
+                    >
+                      <option value="">Səs seçin...</option>
+                      {voices.map(v => (
+                        <option key={v.id} value={v.id}>{v.name} ({v.gender || "neutral"})</option>
+                      ))}
+                    </select>
                   </div>
-                  <select 
-                    className="w-full bg-background border rounded-lg h-9 px-2 text-xs font-medium outline-none focus:ring-1 focus:ring-violet-500"
-                    value={speakerVoices[sid] || project.voiceId || ""}
-                    onChange={(e) => saveVoiceSettings(String(sid), e.target.value)}
-                  >
-                    <option value="">Səs seçin...</option>
-                    {voices.map(v => (
-                      <option key={v.id} value={v.id}>{v.name} ({v.gender || "neutral"})</option>
-                    ))}
-                  </select>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <p className="mt-4 text-[10px] text-muted-foreground italic">
               * Hər bir spiker üçün fərqli səs seçə bilərsiniz. Seçdiyiniz səslər avtomatik yadda saxlanılır.

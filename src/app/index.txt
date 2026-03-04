@@ -1,20 +1,24 @@
-Mövcud MVP-ni (Minimum Viable Product) daha peşəkar və "Pro" səviyyəyə çatdırmaq, yəni ilk istifadəçilərə qüsursuz və dəyərli bir təcrübə təqdim etmək üçün aşağıdakı əlavə və təkmilləşdirmələri edə bilərik. Bu siyahı tətbiqin həm görünüşündə, həm də arxadakı məntiqində (backend) edilməli olanları əhatə edir:
+Bu çox düzgün sualdır! Hazırkı sistem texniki olaraq işləyir, lakin onu tam bir SaaS (Software as a Service) məhsuluna çevirmək üçün həm texniki, həm də istifadəçi təcrübəsi (UX) tərəfdən bir neçə pillə yuxarı qalxmaq lazımdır.
 
-1. Xəta və Prosseslərin İdarəedilməsi (Error Handling & UX)
-Real-vaxt Status Yeniləmələri (WebSockets/SSE): Video dublaj prosesi (yüklənmə, transkripsiya, tərcümə, səs sintezi) uzun çəkir. İstfadəçiyə prosesin faizini (məs.: "Tərcümə edilir 45%") canlı göstərmək üçün WebSockets və ya Server-Sent Events əlavə edilməlidir. İndiki 5 saniyəlik anketləmə (polling) güclü MVP üçün yetərli deyil.
-Detallı Xəta Mesajları: Əgər YouTube linki səhvdirsə və ya video formatı uyğun deyilsə, istifadəçiyə dəqiq bir bildiriş (Toast/Alert) getməlidir (məsələn: "Bu video çox uzundur, maksimum 5 dəqiqə olmalıdır").
-Ləğv Etmə (Cancel) Xüsusiyyəti: Başladılmış, lakin çox vaxt aparan bir prosesi istifadəçinin yarıda dayandırmasına (Cancel job) icazə verilməlidir.
-2. Audio və Subtitr Təkmilləşdirmələri (Core Features)
-Subtitrlərin Redaktəsi (Subtitle Editor): Ən vacib "Pro" xüsusiyyətlərindən biridir. Süni intellekt bəzən sözləri səhv eşidə və ya tərcümə edə bilər. İstifadəçinin dublajdan əvvəl və ya sonra yaranan subtitrləri ekranda oxuyub əllə redaktə edə biləcəyi bir kiçik pəncərə/cədvəl olmalıdır.
-Səs Seçimi (Voice Cloning & Selection): Hazırda tək bir səs istifadə olunursa, istifadəçiyə qadın/kişi, fərqli aksentlər və ya səs tonları seçmək imkanı verilməlidir (məsələn, ElevenLabs və ya OpenAI TTS inteqrasiyası ilə).
-Arxa Plan Səsini Qorumaq (Audio Isolation): Yalnız səsi sintez etmək yox, videodakı orijinal arxa plan musiqisini (və ya səs-küyü) qoruyub üzərinə dublaj səsini əlavə etmək.
-3. Ödəniş Sistemi və Limitlər (Monetization & Quotas)
-Premium Plan (Stripe/LemonSqueezy inteqrasiyası): MVP-nin pul qazana bilməsi üçün abunəlik və ya kredit sistemi olmalıdır (məs.: "Aylıq 20 dəqiqə pulsuz, sonrası üçün Pro plan").
-Kredit Sistemi (Dashboard-da görsənməsi): İstifadəçinin neçə dəqiqəlik limiti qalıb, nə qədərini istifadə edib – bu məlumat aktiv şəkildə bazada hesablanmalı və istifadəçiyə bildirilməlidir.
-4. İstfadəçi Təcrübəsi və Dizayn (Polished UI/UX)
-Video Player İnteqrasiyası: Hazır videonu elə saytın daxilində (Custom Video Player) izləmək. Orijinal və yeni səs arasında bir toxunuşla keçid etmək (A/B testing kimi).
-Yükləmə Formatları (Export Options): Videonu fərqli formatlarda (məs., TikTok üçün dikinə, və ya sadəcə səs formatında mp3, yaxud yalnız srt subtitr faylı) yükləmək imkanı.
-Mobil Uyğunluq (Fully Responsive): Platformanın bütün hissələrinin telefondan da problemsiz işləməsi (Xüsusilə video yükləmə və nəticəni izləmə panelləri).
-5. Arxa fon arxitekturası (Backend Reliability)
-Növbə Sitemi (Queue System): Eyni anda 10 nəfər video yükləsə, server çökə bilər (FFmpeg çox resurs tələb edir). Bunun üçün BullMQ, Redis və ya serverless arxitektura (məs: Inngest/Trigger.dev/AWS SQS) ilə işlərin (jobs) növbəyə salınması.
-Fayl Saxlanması (Cloud Storage): Videoların və səslərin lokal qovluqda (tmp) yox, Amazon S3, Supabase Storage və ya Cloudflare R2 kimi bulud yaddaşlarında saxlanması.
+Bu layihəni peşəkar səviyyəyə çatdırmaq üçün hazırladığım yol xəritəsi (Roadmap):
+
+1. İstifadəçi Təcrübəsi (UX/UI Polish)
+İnteraktiv Timeline Editor: Hazırda subtitrlər sadə siyahı kimidir. Peşəkar SaaS-larda olduğu kimi, videonun altında səs dalğası (waveform) və sürüşdürülə bilən zaman oxu (timeline) əlavə etmək lazımdır.
+Səs Önbaxışı (Voice Preview): İstifadəçi səs seçməzdən əvvəl həmin səsin necə səsləndiyini kiçik bir "Play" düyməsi ilə eşidə bilməlidir.
+Bildiriş Sistemi: Dublaj uzun çəkə bilər. Proses bitdikdə istifadəçiyə Browser Notification və ya Email bildirişinin gedilməsi onu sadiqliyini artırır.
+Dark Mode & Branding: Dizaynı daha premium (vibrant gradients, glassmorphism) etmək və tam mobil uyğunluq (Responsive design) təmin etmək.
+Onboarding: Yeni istifadəçi qeydiyyatdan keçdikdə ona sistemin necə işlədiyini göstərən kiçik bir tur (Tour guide).
+2. Texniki və Funksional Yeniliklər
+Səs Klounlaşdırma (Voice Cloning): ElevenLabs-ın "Instant Voice Cloning" texnologiyası ilə videodakı orijinal şəxsin öz səsini Azərbaycan dilində danışdırmaq. Bu, SaaS-ın ən böyük "wow" effekti olar.
+Fon Musiqisini Qorumaq (Background Music Preservation): Hazırda fon səsini tam kəsirik. Lakin süni intellekt (məsələn, Demucs) ilə musiqini və danışığı ayırıb, yalnız səsi dəyişib musiqini arxada saxlamaq olar.
+Lip-Sync (Dodaq Uyğunluğu): Video-to-Video AI texnologiyaları ilə süni intellektin yaratdığı səsin hərəkətinə uyğun videodakı dodaqları hərəkət etdirmək.
+Daha Çox Çıxış Formatı: Videonu yalnız MP4 yox, həm də YouTube Shorts (9:16) formatında avtomatik kəsib hazırlamaq.
+3. Biznes və SaaS İnfrastrukturu
+Genişləndirilmiş Abunəlik: Aylıq/İllik planlar, "Pay-as-you-go" (istifadə etdikcə ödə) modeli və komanda (Team) hesabı funksiyaları.
+Analitika Paneli: İstifadəçinin son 30 gündə neçə dəqiqə dublaj etdiyini və nə qədər qənaət etdiyini göstərən qrafiklər.
+API Girişi: Digər şirkətlərin sizin sisteminizdən istifadə edə bilməsi üçün Developer API təqdim etmək.
+YouTube İnteqrasiyası: Videonu birbaşa istifadəçinin YouTube kanalına "Direct Upload" etmək imkanı.
+4. Keyfiyyətə Nəzarət (Quality Control)
+Transcript Editing: Dublajı başlatmazdan əvvəl mətni əl ilə düzəltmək imkanını daha da təkmilləşdirmək (Söz bazası/Glossary əlavə etmək).
+Səhv Hesabatı: İstifadəçi uğursuz dublaj olduqda dərhal xəbər verə bilməlidir.
+Bu siyahıdan hansı Sizə daha maraqlı gəlir? İstəsəniz, bu bəndlərdən ən vacibini (məsələn, Səs Önbaxışı və ya Musiqini qoruyub saxlamaq) dərhal tətbiq etməyə başlaya bilərik.

@@ -9,7 +9,7 @@ import { logPipeline, runFfmpeg, getFfmpegBin } from "./ffmpeg";
 import { generateTTSSegment } from "./tts";
 import { transcribeAudio, translateText } from "./ai";
 import { emitProgress } from "./emitter";
-import { uploadFile } from "./storage";
+import { uploadFile, downloadFile } from "./storage";
 
 const execPromise = promisify(exec);
 
@@ -179,22 +179,49 @@ async function prepareVideo(projectId: string, workDir: string, videoPath: strin
     await updateProject(projectId, { videoPath: storagePath });
     return outPath;
   }
+
+  // If videoPath is a storage path (contains / and exists in storage)
+  if (videoPath?.includes("/")) {
+    const localVideo = join(workDir, "video.mp4");
+    if (!existsSync(localVideo)) {
+      logPipeline(projectId, `Downloading video from storage: ${videoPath}`);
+      emitProgress(projectId, { step: "uploading", percent: 12, message: "Video storage-dan endirilir..." });
+      await downloadFile(videoPath, localVideo);
+    }
+    return localVideo;
+  }
+
   if (!videoPath || !existsSync(videoPath)) throw new Error(`Video not found: ${videoPath}`);
   return videoPath;
 }
 
 async function extractAudio(projectId: string, workDir: string, videoPath: string): Promise<string> {
+  const localAudio = join(workDir, "audio.mp3");
+  const project = await getProject(projectId);
+
+  // If audio is already in storage, try downloading it first
+  if (project?.audio_path?.includes("/") && !existsSync(localAudio)) {
+    logPipeline(projectId, `Downloading audio from storage: ${project.audio_path}`);
+    try {
+      await downloadFile(project.audio_path, localAudio);
+      return localAudio;
+    } catch (e) {
+      logPipeline(projectId, "Audio download failed, falling back to extraction.");
+    }
+  }
+
+  if (existsSync(localAudio)) return localAudio;
+
   await updateProject(projectId, { status: "transcribing" });
-  const audioPath = join(workDir, "audio.mp3");
   await execPromise(
-    `"${getFfmpegBin()}" -i "${videoPath}" -vn -acodec mp3 -ab 128k -ar 44100 -y "${audioPath}"`,
+    `"${getFfmpegBin()}" -i "${videoPath}" -vn -acodec mp3 -ab 128k -ar 44100 -y "${localAudio}"`,
     { timeout: 5 * 60 * 1000 }
   );
   emitProgress(projectId, { step: "transcribing", percent: 25, message: "Audio storage-a yüklənir..." });
   const storagePath = `${projectId}/audio.mp3`;
-  await uploadFile(audioPath, storagePath);
+  await uploadFile(localAudio, storagePath);
   await updateProject(projectId, { audioPath: storagePath });
-  return audioPath;
+  return localAudio;
 }
 
 async function performTranscription(projectId: string, audioPath: string): Promise<any[]> {
@@ -248,10 +275,14 @@ async function performDubbing(
     // Pick voice for this speaker
     let voiceId = defaultVoiceId;
     if (sub.speaker_id && speakerVoices[sub.speaker_id]) {
-      voiceId = speakerVoices[sub.speaker_id];
-    } else if (sub.speaker_id === 2 && !voiceId) {
-      // Automatic fallback for Speaker 2 if no settings exist
-      voiceId = "2EiwWnXFnvU5JabPnv8n"; // Clyde (male)
+        voiceId = speakerVoices[sub.speaker_id];
+    } else {
+        // Smart fallback based on detected gender
+        if (sub.speaker_gender === 'male') {
+            voiceId = "2EiwWnXFnvU5JabPnv8n"; // Clyde (male)
+        } else if (sub.speaker_gender === 'female') {
+            voiceId = "21m00Tcm4TlvDq8ikWAM"; // Rachel (female)
+        }
     }
 
     await generateTTSSegment(sub.translatedText, rawPath, targetLang, projectId, i, voiceId);

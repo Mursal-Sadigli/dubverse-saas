@@ -26,12 +26,12 @@ export async function generateTTSSegment(
   try {
     const audioData = await client.textToSpeech.convert(selectedVoice, {
       text,
-      model_id: "eleven_multilingual_v2",
+      model_id: "eleven_turbo_v2_5",
       output_format: "mp3_44100_128",
       voice_settings: {
-        stability: 0.30,         // lower = more expressive, less robotic
-        similarity_boost: 0.75,  // natural, not over-fitted
-        style: 0.35,             // adds emotional expression
+        stability: 0.50,         // balanced for natural tone
+        similarity_boost: 0.80,  // high similarity to original voice
+        style: 0.0,              // disable unnatural style exaggeration
         use_speaker_boost: true,
       },
     });
