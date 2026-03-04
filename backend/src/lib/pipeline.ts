@@ -167,6 +167,7 @@ export async function processPipeline(projectId: string) {
 }
 
 async function prepareVideo(projectId: string, workDir: string, videoPath: string | null): Promise<string> {
+  console.log(`[PIPELINE:${projectId}] prepareVideo called with path: ${videoPath}`);
   if (videoPath?.startsWith("youtube:")) {
     await updateProject(projectId, { status: "uploading" });
     const url = videoPath.replace("youtube:", "");

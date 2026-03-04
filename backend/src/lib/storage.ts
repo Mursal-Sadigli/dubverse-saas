@@ -33,11 +33,22 @@ export async function uploadFile(localPath: string, storagePath: string): Promis
  * Download a file from Supabase Storage to a local path.
  */
 export async function downloadFile(storagePath: string, localPath: string): Promise<void> {
+  console.log(`[STORAGE] Downloading: bucket=${BUCKET}, path=${storagePath}`);
   const { data, error } = await supabase.storage.from(BUCKET).download(storagePath);
-  if (error) throw new Error(`Storage download failed: ${error.message}`);
+  
+  if (error) {
+    console.error(`[STORAGE ERROR] Download failed for ${storagePath}:`, error);
+    throw new Error(`Storage download failed: ${error.message || JSON.stringify(error)}`);
+  }
+  
+  if (!data) {
+    console.error(`[STORAGE ERROR] Download returned no data for ${storagePath}`);
+    throw new Error(`Storage download failed: No data received from Supabase`);
+  }
   
   const buffer = Buffer.from(await data.arrayBuffer());
   writeFileSync(localPath, buffer);
+  console.log(`[STORAGE] Successfully downloaded ${storagePath} to ${localPath}`);
 }
 
 /**
