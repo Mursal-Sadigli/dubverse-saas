@@ -17,6 +17,7 @@ import {
 
 interface ProjectCardProps {
   project: Project;
+  layout?: "grid" | "list";
   onDelete?: (id: string) => void;
   onRetry?: (id: string) => void;
 }
@@ -31,7 +32,7 @@ const statusConfig = {
   failed: { icon: AlertCircle, class: "bg-red-500/10 text-red-500 border-red-500/20", label: "Xəta", pulse: false }
 };
 
-export default function ProjectCard({ project, onDelete, onRetry }: ProjectCardProps) {
+export default function ProjectCard({ project, layout, onDelete, onRetry }: ProjectCardProps) {
   const status = statusConfig[project.status as keyof typeof statusConfig] || statusConfig.pending;
   const StatusIcon = status.icon;
   const isProcessing = status.pulse;
