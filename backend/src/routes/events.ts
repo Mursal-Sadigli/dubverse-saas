@@ -42,6 +42,9 @@ router.get("/:id/events", async (req: Request, res: Response) => {
       res.write(`data: ${JSON.stringify(data)}\n\n`);
     };
 
+    // Send padding to bypass proxy buffering (e.g. Nginx, Render)
+    res.write(`: ${' '.repeat(2048)}\n\n`);
+
     // Send initial status right away
     sendEvent({ step: project.status, percent: 0, message: "Bağlantı quruldu" });
 

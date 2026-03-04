@@ -20,19 +20,24 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
       res.status(404).json({ error: "Project not found" }); return;
     }
 
-    // Only use Inngest in production — locally, Inngest Cloud can't reach localhost:4000
-    const hasInngest = !!process.env.INNGEST_EVENT_KEY && process.env.NODE_ENV === "production";
+    // Logic to decide whether to use Inngest or run directly
+    const useInngest = !!process.env.INNGEST_EVENT_KEY && 
+                       process.env.NODE_ENV === "production" && 
+                       process.env.FORCE_DIRECT_PIPELINE !== "true";
 
-    if (hasInngest) {
+    if (useInngest) {
+      console.log(`[PIPELINE:${projectId}] Mode: Inngest (Production)`);
       const { inngest } = await import("../lib/inngest");
       await inngest.send({ name: "dubbing/process", data: { projectId } });
       res.json({ success: true, message: "Job queued via Inngest", queued: true });
     } else {
-      // Direct async execution (local dev / no Inngest configured)
+      const mode = process.env.NODE_ENV === "production" ? "Direct (Bypass)" : "Direct (Local)";
+      console.log(`[PIPELINE:${projectId}] Mode: ${mode}`);
+      // Direct async execution
       processPipeline(projectId).catch((err: any) => {
-        console.error(`[pipeline:${projectId}] Unhandled error:`, err);
+        console.error(`[PIPELINE ERROR:${projectId}]`, err);
       });
-      res.json({ success: true, message: "Pipeline started directly", queued: false });
+      res.json({ success: true, message: `Pipeline started directly (${mode})`, queued: false });
     }
   } catch (err: any) {
     res.status(500).json({ error: err.message });
