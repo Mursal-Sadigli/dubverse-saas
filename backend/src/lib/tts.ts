@@ -1,7 +1,4 @@
-import { ElevenLabsClient } from "elevenlabs";
 import { createWriteStream, existsSync, statSync } from "fs";
-import { Readable } from "stream";
-import { pipeline as streamPipeline } from "stream/promises";
 import { logPipeline } from "./ffmpeg";
 
 // Default fallback voice (Rachel)
@@ -25,25 +22,42 @@ export async function generateTTSSegment(
   logPipeline(projectId, `ElevenLabs TTS seg ${index} [${selectedVoice}]: "${text.substring(0, 50)}"`);
 
   try {
-    const client = new ElevenLabsClient({ apiKey });
-    const audioData = await client.textToSpeech.convert(selectedVoice, {
-      text,
-      model_id: "eleven_multilingual_v2", // More widely supported than turbo
-      output_format: "mp3_44100_128",
-      voice_settings: {
-        stability: 0.50,         // balanced for natural tone
-        similarity_boost: 0.80,  // high similarity to original voice
-        style: 0.0,              // disable unnatural style exaggeration
-        use_speaker_boost: true,
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${selectedVoice}`, {
+      method: "POST",
+      headers: {
+        "xi-api-key": apiKey,
+        "Content-Type": "application/json",
+        "accept": "audio/mpeg",
       },
+      body: JSON.stringify({
+        text,
+        model_id: "eleven_multilingual_v2",
+        voice_settings: {
+          stability: 0.5,
+          similarity_boost: 0.8,
+          use_speaker_boost: true
+        }
+      }),
     });
 
-    // Convert response to readable stream and pipe to file
-    const readable = audioData instanceof Readable
-      ? audioData
-      : Readable.from(audioData as AsyncIterable<Buffer>);
+    if (!response.ok) {
+      const errorBody = await response.text();
+      const maskedKey = apiKey.substring(0, 4) + "****" + apiKey.substring(apiKey.length - 4);
+      logPipeline(projectId, `❌ ElevenLabs API Error ${response.status} (Key: ${maskedKey}): ${errorBody}`);
+      throw new Error(`ElevenLabs Error ${response.status}: ${errorBody}`);
+    }
 
-    await streamPipeline(readable, createWriteStream(outputPath));
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    
+    const writeStream = createWriteStream(outputPath);
+    writeStream.write(buffer);
+    writeStream.end();
+
+    await new Promise<void>((resolve, reject) => {
+      writeStream.on("finish", () => resolve());
+      writeStream.on("error", (err) => reject(err));
+    });
 
     if (!existsSync(outputPath) || statSync(outputPath).size < 100) {
       throw new Error(`ElevenLabs: output file missing or too small at ${outputPath}`);
@@ -51,8 +65,7 @@ export async function generateTTSSegment(
 
     logPipeline(projectId, `Seg ${index} done (${statSync(outputPath).size} bytes) ✅`);
   } catch (err: any) {
-    const maskedKey = apiKey.substring(0, 4) + "****" + apiKey.substring(apiKey.length - 4);
-    logPipeline(projectId, `❌ ElevenLabs seg ${index} failed (Key: ${maskedKey}): ${err.message}`);
+    logPipeline(projectId, `❌ ElevenLabs seg ${index} failed: ${err.message}`);
     throw err;
   }
 }
