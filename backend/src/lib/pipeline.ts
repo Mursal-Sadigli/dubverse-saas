@@ -282,11 +282,11 @@ async function performDubbing(
     if (sub.speaker_id && speakerVoices[sub.speaker_id]) {
         voiceId = speakerVoices[sub.speaker_id];
     } else {
-        // Smart fallback based on detected gender
+        // Smart fallback based on detected gender (OpenAI voices)
         if (sub.speaker_gender === 'male') {
-            voiceId = "2EiwWnXFnvU5JabPnv8n"; // Clyde (male)
+            voiceId = "onyx"; // Male
         } else if (sub.speaker_gender === 'female') {
-            voiceId = "21m00Tcm4TlvDq8ikWAM"; // Rachel (female)
+            voiceId = "nova"; // Female
         }
     }
 

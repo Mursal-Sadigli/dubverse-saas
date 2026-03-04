@@ -25,7 +25,7 @@ export default function NewDubPage() {
   const [projectName, setProjectName] = useState("");
   const [sourceLang, setSourceLang] = useState("en");
   const [voices, setVoices] = useState<Voice[]>([]);
-  const [selectedVoiceId, setSelectedVoiceId] = useState("21m00Tcm4TlvDq8ikWAM"); // Rachel default
+  const [selectedVoiceId, setSelectedVoiceId] = useState("nova"); // OpenAI Nova default
   const [loadingVoices, setLoadingVoices] = useState(true);
   const [previewAudio, setPreviewAudio] = useState<HTMLAudioElement | null>(null);
 
@@ -35,8 +35,7 @@ export default function NewDubPage() {
         const token = await getToken();
         const res = await fetch(`${API}/api/voices`, { headers: { Authorization: `Bearer ${token}` } });
         const data = await res.json();
-        const filtered = (data.voices || []).filter((v: Voice) => v.category !== "cloned").slice(0, 20);
-        setVoices(filtered);
+        setVoices(data.voices || []);
       } catch { /* non fatal */ }
       finally { setLoadingVoices(false); }
     })();
