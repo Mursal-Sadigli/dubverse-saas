@@ -24,6 +24,8 @@ export default function ProjectPage() {
   const [voices, setVoices] = useState<any[]>([]);
   const [speakerVoices, setSpeakerVoices] = useState<Record<string, string>>({});
   const eventSourceRef = useRef<EventSource | null>(null);
+  const reconnectAttemptsRef = useRef(0);
+  const MAX_RECONNECT = 5;
 
   /* ── REST fetch (initial load and polling fallback) ── */
   const fetchProject = useCallback(async () => {
@@ -42,30 +44,27 @@ export default function ProjectPage() {
     }
   }, [id, getToken]);
 
-  /* ── SSE connection ── */
+  /* ── SSE connection with auto-reconnect ── */
   const connectSSE = useCallback(async () => {
-    if (eventSourceRef.current) { eventSourceRef.current.close(); }
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
 
     const token = await getToken();
-    const url = `${API}/api/projects/${id}/events`;
-
-    // EventSource doesn't support custom headers — we'll send token as query param
-    // Backend must read it from ?token= query if Authorization header isn't available
-    // Alternatively: poll the REST endpoint alongside SSE
-    const es = new EventSource(`${url}?token=${token}`);
+    const es = new EventSource(`${API}/api/projects/${id}/events?token=${token}`);
     eventSourceRef.current = es;
+    reconnectAttemptsRef.current = 0;
 
     es.onmessage = (e) => {
+      reconnectAttemptsRef.current = 0; // reset on successful message
       try {
         const data = JSON.parse(e.data);
         setProgress({ percent: data.percent, message: data.message });
-        if (data.step === "completed") {
+        if (data.step === "completed" || data.step === "failed" || data.step === "cancelled") {
           fetchProject();
           es.close();
-        }
-        if (data.step === "failed" || data.step === "cancelled") {
-          fetchProject();
-          es.close();
+          eventSourceRef.current = null;
         }
       } catch {}
     };
@@ -73,6 +72,11 @@ export default function ProjectPage() {
     es.onerror = () => {
       es.close();
       eventSourceRef.current = null;
+      // Auto-reconnect with backoff (skip if too many attempts)
+      if (reconnectAttemptsRef.current < MAX_RECONNECT) {
+        reconnectAttemptsRef.current += 1;
+        setTimeout(() => connectSSE(), 2000 * reconnectAttemptsRef.current);
+      }
     };
   }, [id, getToken]);
 
@@ -158,13 +162,19 @@ export default function ProjectPage() {
     setIsStarting(true);
     try {
       const token = await getToken();
+      // Connect SSE FIRST so we don't miss early progress events
+      await connectSSE();
       const res = await fetch(`${API}/api/transcribe`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ projectId: id }),
       });
-      if (res.ok) { toast.success("Pipeline başladıldı"); connectSSE(); }
-      else toast.error("Pipeline başladıla bilmədi");
+      if (res.ok) { toast.success("Pipeline başladıldı"); }
+      else {
+        toast.error("Pipeline başladıla bilmədi");
+        eventSourceRef.current?.close();
+        eventSourceRef.current = null;
+      }
     } catch { toast.error("Şəbəkə xətası"); }
     finally { setIsStarting(false); }
   };

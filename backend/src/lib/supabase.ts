@@ -10,12 +10,17 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 /* ── Project helpers ── */
 
 export async function getProject(id: string) {
+  console.log(`[DB] Fetching project: ${id}`);
   const { data, error } = await supabase
     .from("projects")
     .select("*, subtitles(*)")
     .eq("id", id)
     .single();
-  if (error) throw error;
+  if (error) {
+    console.error(`[DB] Error fetching project ${id}:`, error);
+    throw error;
+  }
+  console.log(`[DB] Successfully fetched project: ${id}`);
   return data;
 }
 

@@ -22,6 +22,22 @@ router.get("/:id", requireAuth, async (req: Request, res: Response) => {
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
+// PATCH /api/projects/:id — update voice settings, etc.
+router.patch("/:id", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const row = await getProject(id(req));
+    if (!row || row.user_id !== (req as any).userId) { res.status(404).json({ error: "Not found" }); return; }
+    const allowed = ["voiceSettings", "voiceId", "name"];
+    const updates: Record<string, any> = {};
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) updates[key] = req.body[key];
+    }
+    if (Object.keys(updates).length === 0) { res.status(400).json({ error: "No valid fields to update" }); return; }
+    await updateProject(id(req), updates);
+    res.json({ success: true });
+  } catch (err: any) { res.status(500).json({ error: err.message }); }
+});
+
 // POST /api/projects/:id/cancel
 router.post("/:id/cancel", requireAuth, async (req: Request, res: Response) => {
   try {

@@ -62,10 +62,14 @@ export async function processPipeline(projectId: string) {
 
   try {
     if (!existsSync(workDir)) mkdirSync(workDir, { recursive: true });
-    logPipeline(projectId, "Pipeline started.");
+    logPipeline(projectId, "DEBUG: Step 0 - Starting try block");
+    // Small delay to ensure SSE client has connected before first event
+    await new Promise(resolve => setTimeout(resolve, 500));
     emitProgress(projectId, { step: "uploading", percent: 5, message: "Pipeline başladıldı" });
+    logPipeline(projectId, "DEBUG: Step 1 - Progress emitted");
 
     const project = await getProject(projectId);
+    logPipeline(projectId, `DEBUG: Step 2 - Project fetched: ${project?.id}`);
     if (!project) { logPipeline(projectId, "Project not found."); return; }
     if (project.status !== "uploading" && project.status !== "failed") {
       logPipeline(projectId, `Already running (${project.status}). Aborted.`);

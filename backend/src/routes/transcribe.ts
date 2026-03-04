@@ -20,8 +20,8 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
       res.status(404).json({ error: "Project not found" }); return;
     }
 
-    // Try Inngest queue first; fall back to direct call if not configured
-    const hasInngest = !!process.env.INNGEST_EVENT_KEY;
+    // Only use Inngest in production — locally, Inngest Cloud can't reach localhost:4000
+    const hasInngest = !!process.env.INNGEST_EVENT_KEY && process.env.NODE_ENV === "production";
 
     if (hasInngest) {
       const { inngest } = await import("../lib/inngest");
