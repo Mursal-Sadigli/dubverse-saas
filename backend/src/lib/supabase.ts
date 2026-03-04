@@ -71,6 +71,7 @@ export async function updateProject(id: string, fields: Record<string, any>) {
     sourceLanguage: "source_language",
     targetLanguage: "target_language",
     voiceId: "voice_id",
+    voiceSettings: "voice_settings",
   };
   for (const [k, v] of Object.entries(fields)) {
     if (k === "subtitles") continue; // handled separately
@@ -92,7 +93,7 @@ export async function deleteProject(id: string) {
 
 export async function upsertSubtitles(
   projectId: string,
-  subtitles: Array<{ id: string; start: number; end: number; text: string; translatedText?: string }>
+  subtitles: Array<{ id: string; start: number; end: number; text: string; translatedText?: string; speaker_id?: number }>
 ) {
   if (!subtitles.length) return;
 
@@ -107,6 +108,7 @@ export async function upsertSubtitles(
     end_time: s.end,
     text: s.text,
     translated_text: s.translatedText ?? null,
+    speaker_id: s.speaker_id || 1,
   }));
 
   const { error } = await supabase.from("subtitles").insert(rows);
@@ -131,6 +133,7 @@ export function mapProject(row: any) {
     thumbnailUrl: row.thumbnail_url,
     error: row.error,
     voiceId: row.voice_id,
+    voiceSettings: row.voice_settings,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     subtitles: (row.subtitles ?? [])
@@ -141,6 +144,7 @@ export function mapProject(row: any) {
         end: s.end_time,
         text: s.text,
         translatedText: s.translated_text,
+        speaker_id: s.speaker_id,
       })),
   };
 }

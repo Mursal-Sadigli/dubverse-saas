@@ -35,9 +35,8 @@ export async function translateText(
 Translate numbered subtitle segments from ${sourceName} to ${targetName}.
 
 Rules:
-- Keep translated sentences roughly the SAME LENGTH as the original (for lip-sync timing).
-- Maintain the natural spoken rhythm and pacing.
-- Preserve tone, emotion, and style of the speaker.
+- Keep translated sentences VERY BRIEF. If the target language is naturally wordier, prioritize shorter synonyms.
+- Match the original timing as closely as possible.
 - Output ONLY translated lines in format: [n] translated text
 - No explanations, no extra text.`;
 
@@ -58,4 +57,42 @@ Rules:
     if (match) mapping[parseInt(match[1])] = match[2].trim();
   }
   return mapping;
+}
+export async function diarizeSpeakers(subtitles: any[]): Promise<any[]> {
+  const transcript = subtitles.map((s, i) => `[${i + 1}] ${s.text}`).join("\n");
+
+  const SYSTEM_PROMPT = `You are an expert at dialogue analysis and speaker diarization.
+Analyze the provided numbered transcript and identify different speakers. 
+Assign a numerical Speaker ID (1, 2, 3...) to each line.
+
+Rules:
+- Identify if multiple people are talking based on context, names, and turn-taking.
+- If it's a monologue, assign "1" to all lines.
+- Output ONLY the mapping in format: [n] SpeakerID
+- No extra text.`;
+
+  const response = await groq.chat.completions.create({
+    model: "llama-3.3-70b-versatile",
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content: transcript },
+    ],
+    temperature: 0.1,
+  });
+
+  const content = response.choices[0]?.message?.content || "";
+  const mapped = [...subtitles];
+  
+  for (const line of content.split("\n").filter(l => l.trim())) {
+    const match = line.match(/^\[(\d+)\]\s*(\d+)$/);
+    if (match) {
+      const index = parseInt(match[1]) - 1;
+      if (mapped[index]) {
+        mapped[index].speaker_id = parseInt(match[2]);
+      }
+    }
+  }
+
+  // Fallback: Default to Speaker 1 if not identified
+  return mapped.map(m => ({ ...m, speaker_id: m.speaker_id || 1 }));
 }

@@ -22,6 +22,8 @@ export default function ProjectPage() {
   const [isStarting, setIsStarting] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [progress, setProgress] = useState<{ percent: number; message: string } | null>(null);
+  const [voices, setVoices] = useState<any[]>([]);
+  const [speakerVoices, setSpeakerVoices] = useState<Record<string, string>>({});
   const eventSourceRef = useRef<EventSource | null>(null);
 
   /* ── REST fetch (initial load and polling fallback) ── */
@@ -75,12 +77,36 @@ export default function ProjectPage() {
     };
   }, [id, getToken]);
 
-  /* ── Initial load + polling (every 4s as SSE fallback) ── */
+  /* ── Initial load + polling ── */
   useEffect(() => {
     fetchProject();
-    const interval = setInterval(fetchProject, 4000);
+    const interval = setInterval(fetchProject, 5000);
+
+    // Fetch available voices
+    const fetchVoices = async () => {
+      try {
+        const token = await getToken();
+        const res = await fetch(`${API}/api/voices`, { headers: { Authorization: `Bearer ${token}` } });
+        if (res.ok) {
+          const data = await res.json();
+          setVoices(data.voices || []);
+        }
+      } catch (err) { console.error("Səslər yüklənmədi", err); }
+    };
+    fetchVoices();
+
     return () => clearInterval(interval);
-  }, [fetchProject]);
+  }, [fetchProject, getToken]);
+
+  /* ── Sync local speaker voices from project ── */
+  useEffect(() => {
+    if (project?.voiceSettings) {
+      try {
+        const parsed = typeof project.voiceSettings === 'string' ? JSON.parse(project.voiceSettings) : project.voiceSettings;
+        setSpeakerVoices(parsed);
+      } catch { setSpeakerVoices({}); }
+    }
+  }, [project?.voiceSettings]);
 
   /* ── Connect SSE when project is processing ── */
   useEffect(() => {
@@ -107,7 +133,8 @@ export default function ProjectPage() {
       });
       if (res.ok) { toast.success("Pipeline başladıldı"); connectSSE(); }
       else toast.error("Pipeline başladıla bilmədi");
-    } finally { setIsStarting(false); }
+    } catch { toast.error("Şəbəkə xətası"); }
+    finally { setIsStarting(false); }
   };
 
   const cancelPipeline = async () => {
@@ -121,7 +148,22 @@ export default function ProjectPage() {
       });
       if (res.ok) { toast.success("Proses ləğv edildi"); fetchProject(); }
       else toast.error("Ləğv edilə bilmədi");
-    } finally { setIsCancelling(false); }
+    } catch { toast.error("Xəta baş verdi"); }
+    finally { setIsCancelling(false); }
+  };
+
+  const saveVoiceSettings = async (idOfSpeaker: string, vId: string) => {
+    const newSettings = { ...speakerVoices, [idOfSpeaker]: vId };
+    setSpeakerVoices(newSettings);
+    try {
+      const token = await getToken();
+      await fetch(`${API}/api/projects/${id}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ voiceSettings: newSettings }),
+      });
+      toast.success("Səslər yeniləndi");
+    } catch { toast.error("Ayarlar saxlanmadı"); }
   };
 
   const isProcessing = project ? !["completed", "failed", "cancelled"].includes(project.status) : false;
@@ -207,9 +249,9 @@ export default function ProjectPage() {
 
           {/* Action buttons */}
           <div className="mt-5 flex justify-center gap-3">
-            {project.status === "uploading" && !isProcessing && (
-              <Button onClick={startPipeline} disabled={isStarting} className="bg-violet-600 hover:bg-violet-700 rounded-xl">
-                {isStarting ? <><Loader2 className="size-4 animate-spin mr-2" /> Başladılır...</> : <><RefreshCw className="size-4 mr-2" /> Pipeline Başlat</>}
+            {(project.status === "uploading" || project.status === "failed") && (
+              <Button onClick={startPipeline} disabled={isStarting || isProcessing} className="bg-violet-600 hover:bg-violet-700 rounded-xl">
+                {isStarting ? <><Loader2 className="size-4 animate-spin mr-2" /> Başladılır...</> : <><RefreshCw className="size-4 mr-2" /> {project.status === "failed" ? "Yenidən Cəhd" : "Dublajı Başlat"}</>}
               </Button>
             )}
             {isProcessing && (
@@ -219,6 +261,38 @@ export default function ProjectPage() {
             )}
           </div>
         </div>
+
+        {/* Speaker Voice Configuration */}
+        {((project.subtitles?.length || 0) > 0) && (
+          <div className="mb-6 rounded-2xl border bg-card p-6">
+            <h3 className="text-sm font-bold flex items-center gap-2 mb-4">
+              <Volume2 className="size-4 text-violet-500" /> Spiker Səsləri
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {Array.from(new Set(project.subtitles.map(s => s.speaker_id || 1))).sort().map(sid => (
+                <div key={sid} className="space-y-1.5 p-3 rounded-xl border bg-muted/20">
+                  <div className="flex justify-between items-center px-1">
+                    <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Spiker {sid}</span>
+                    <span className="text-[10px] text-violet-400 font-medium">ElevenLabs</span>
+                  </div>
+                  <select 
+                    className="w-full bg-background border rounded-lg h-9 px-2 text-xs font-medium outline-none focus:ring-1 focus:ring-violet-500"
+                    value={speakerVoices[sid] || project.voiceId || ""}
+                    onChange={(e) => saveVoiceSettings(String(sid), e.target.value)}
+                  >
+                    <option value="">Səs seçin...</option>
+                    {voices.map(v => (
+                      <option key={v.id} value={v.id}>{v.name} ({v.gender || "neutral"})</option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 text-[10px] text-muted-foreground italic">
+              * Hər bir spiker üçün fərqli səs seçə bilərsiniz. Seçdiyiniz səslər avtomatik yadda saxlanılır.
+            </p>
+          </div>
+        )}
 
         {/* Tabs */}
         {(project.status === "completed" || (project.subtitles?.length ?? 0) > 0) && (

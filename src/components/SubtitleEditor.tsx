@@ -14,6 +14,7 @@ interface Subtitle {
   end: number;
   text: string;
   translatedText?: string;
+  speaker_id?: number;
 }
 
 interface SubtitleEditorProps {
@@ -86,8 +87,9 @@ export default function SubtitleEditor({ subtitles, onChange }: SubtitleEditorPr
   return (
     <div className="rounded-2xl border bg-card overflow-hidden">
       {/* Header */}
-      <div className="grid grid-cols-[80px_1fr_1fr] gap-3 px-4 py-3 border-b bg-muted/40 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+      <div className="grid grid-cols-[80px_60px_1fr_1fr] gap-3 px-4 py-3 border-b bg-muted/40 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
         <span>Vaxt</span>
+        <span>Spiker</span>
         <span>Orijinal</span>
         <span className="text-violet-400">Tərcümə</span>
       </div>
@@ -98,10 +100,20 @@ export default function SubtitleEditor({ subtitles, onChange }: SubtitleEditorPr
           <p className="p-8 text-center text-sm text-muted-foreground">Transkripsiyadan sonra burada görünəcək.</p>
         )}
         {subtitles.map((sub) => (
-          <div key={sub.id} className={cn("grid grid-cols-[80px_1fr_1fr] gap-3 px-4 py-3 hover:bg-muted/20 transition-colors")}>
+          <div key={sub.id} className={cn("grid grid-cols-[80px_60px_1fr_1fr] gap-3 px-4 py-3 hover:bg-muted/20 transition-colors")}>
             <span className="font-mono text-[11px] text-muted-foreground pt-0.5 whitespace-nowrap">
               {toTime(sub.start)}<br />→ {toTime(sub.end)}
             </span>
+            <div className="flex items-start pt-0.5">
+              <span className={cn(
+                "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
+                sub.speaker_id === 2 ? "bg-blue-500/10 text-blue-500 border border-blue-500/20" : 
+                sub.speaker_id === 3 ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" :
+                "bg-violet-500/10 text-violet-500 border border-violet-500/20"
+              )}>
+                S{sub.speaker_id || 1}
+              </span>
+            </div>
             <EditableCell
               value={sub.text}
               onSave={(v) => saveField(sub.id, "text", v)}

@@ -11,6 +11,8 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
     const userId = (req as any).userId;
     const { projectId } = req.body;
 
+    console.log(`[TRANSCRIBE] Request from userId: ${userId} for projectId: ${projectId}`);
+
     if (!projectId) { res.status(400).json({ error: "projectId is required" }); return; }
 
     const project = await getProject(projectId);

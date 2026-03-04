@@ -1,4 +1,5 @@
 import { getProject, updateProject, supabase } from "./supabase";
+import { diarizeSpeakers } from "./ai";
 import { exec } from "child_process";
 import { promisify } from "util";
 import { existsSync, mkdirSync, readFileSync } from "fs";
@@ -16,17 +17,34 @@ async function getAudioDuration(filePath: string): Promise<number> {
   try {
     const ffmpegBin = getFfmpegBin();
     const ffprobeBin = ffmpegBin.replace(/ffmpeg(\.exe)?$/, "ffprobe$1");
-    const { stdout } = await execPromise(
-      `"${existsSync(ffprobeBin) ? ffprobeBin : "ffprobe"}" -v error -show_entries format=duration -of csv=p=0 "${filePath}"`,
-      { timeout: 30000 }
-    );
-    return parseFloat(stdout.trim()) || 0;
-  } catch { return 0; }
+    
+    // Method 1: FFprobe (Precise)
+    if (existsSync(ffprobeBin)) {
+      const { stdout } = await execPromise(
+        `"${ffprobeBin}" -v error -show_entries format=duration -of csv=p=0 "${filePath}"`,
+        { timeout: 30000 }
+      );
+      const d = parseFloat(stdout.trim());
+      if (!isNaN(d)) return d;
+    }
+
+    // Method 2: FFmpeg Fallback (Parse metadata)
+    const { stderr } = await execPromise(`"${ffmpegBin}" -i "${filePath}"`, { timeout: 30000 }).catch(e => e);
+    const match = stderr.match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
+    if (match) {
+      const h = parseInt(match[1]), m = parseInt(match[2]), s = parseFloat(match[3]);
+      return h * 3600 + m * 60 + s;
+    }
+    return 0;
+  } catch (e) { 
+    console.error("[duration-fallback] Failed:", e);
+    return 0; 
+  }
 }
 
 async function stretchAudio(inputPath: string, outputPath: string, src: number, tgt: number, projectId: string, i: number): Promise<void> {
   if (src <= 0 || tgt <= 0) return;
-  const rate = Math.max(0.5, Math.min(2.0, src / tgt));
+  const rate = Math.max(0.8, Math.min(1.4, src / tgt));
   if (Math.abs(rate - 1.0) < 0.05) return;
   logPipeline(projectId, `Stretching seg ${i}: ${src.toFixed(2)}s→${tgt.toFixed(2)}s (rate=${rate.toFixed(2)})`);
   await execPromise(`"${getFfmpegBin()}" -i "${inputPath}" -filter:a "atempo=${rate}" -y "${outputPath}"`, { timeout: 60000 });
@@ -69,10 +87,14 @@ export async function processPipeline(projectId: string) {
     const durationSeconds = await getAudioDuration(audioPath);
     const durationMinutes = Math.ceil(durationSeconds / 60);
     
+    console.log(`[PIPELINE:${projectId}] Duration: ${durationSeconds}s (~${durationMinutes}m)`);
+
     if (durationMinutes > 0) {
        let sub = null;
        const { data, error } = await supabase.from('subscriptions').select('minutes_used, minutes_limit').eq('user_id', project.user_id).maybeSingle();
        
+       console.log(`[PIPELINE:${projectId}] Fetching sub for user ${project.user_id}:`, { data, error });
+
        if (error && error.code !== 'PGRST116') {
          console.error("Supabase subscription fetch error:", error);
        } else if (data) {
@@ -80,41 +102,54 @@ export async function processPipeline(projectId: string) {
        }
 
        if (!sub) {
-         // Create default free tier if missing
+         console.log(`[PIPELINE:${projectId}] No sub row found. Using defaults.`);
          sub = { minutes_used: 0, minutes_limit: 20 };
        }
 
        const newUsed = sub.minutes_used + durationMinutes;
+       console.log(`[PIPELINE:${projectId}] Calculated new usage: ${newUsed} / ${sub.minutes_limit}`);
+
        if (newUsed > sub.minutes_limit) {
           throw new Error(`Kifayət qədər limit yoxdur. Bu video üçün ${durationMinutes} dəqiqə lazımdır, lakin sizin ${sub.minutes_limit - sub.minutes_used} dəqiqəniz qalıb.`);
        }
        
-       await supabase.from('subscriptions').upsert({ 
+       const { error: upsertError } = await supabase.from('subscriptions').upsert({ 
          user_id: project.user_id, 
          plan: sub.minutes_limit > 20 ? 'pro' : 'free',
          minutes_used: newUsed,
          minutes_limit: sub.minutes_limit,
          updated_at: new Date().toISOString(),
        }, { onConflict: 'user_id' });
+
+       if (upsertError) {
+         console.error(`[PIPELINE:${projectId}] Upsert error:`, upsertError);
+       } else {
+         console.log(`[PIPELINE:${projectId}] Successfully updated usage to ${newUsed}`);
+       }
     }
     if (await checkCancelled(projectId)) return;
 
     // Step 4: Transcribe
     emitProgress(projectId, { step: "transcribing", percent: 35, message: "Transkripsiya edilir..." });
-    const subtitles = await performTranscription(projectId, audioPath);
+    let subtitles = await performTranscription(projectId, audioPath);
     if (await checkCancelled(projectId)) return;
 
-    // Step 4: Translate
+    // Step 5: Diarize Speakers (Multi-speaker support)
+    emitProgress(projectId, { step: "translating", percent: 45, message: "Spikerlər analiz edilir..." });
+    subtitles = await diarizeSpeakers(subtitles);
+    await updateProject(projectId, { subtitles });
+
+    // Step 6: Translate
     emitProgress(projectId, { step: "translating", percent: 55, message: "Tərcümə edilir (GPT-4o)..." });
     const translatedSubs = await performTranslation(projectId, project, subtitles);
     if (await checkCancelled(projectId)) return;
 
-    // Step 5: Dub
+    // Step 7: Dub
     emitProgress(projectId, { step: "dubbing", percent: 70, message: "Dublaj səsləri yaradılır..." });
-    const dubbedAudioPath = await performDubbing(projectId, workDir, translatedSubs, project.target_language, audioPath, project.voice_id);
+    const dubbedAudioPath = await performDubbing(projectId, workDir, translatedSubs, project.target_language, audioPath, project.voice_id, project.voice_settings);
     if (await checkCancelled(projectId)) return;
 
-    // Step 6: Mux
+    // Step 8: Mux
     emitProgress(projectId, { step: "dubbing", percent: 90, message: "Video birləşdirilir..." });
     await muxFinalVideo(projectId, workDir, videoPath, dubbedAudioPath);
 
@@ -182,7 +217,7 @@ async function performTranslation(projectId: string, project: any, subtitles: an
 
 async function performDubbing(
   projectId: string, workDir: string, subtitles: any[],
-  targetLang: string, originalAudioPath: string, voiceId?: string
+  targetLang: string, originalAudioPath: string, defaultVoiceId?: string, voiceSettings?: any
 ): Promise<string> {
   await updateProject(projectId, { status: "dubbing" });
   const segDir = join(workDir, "segments");
@@ -191,6 +226,13 @@ async function performDubbing(
   interface SegInfo { audioPath: string; start: number; end: number }
   const segmentPaths: SegInfo[] = [];
   const total = subtitles.filter(s => s.translatedText).length;
+
+  // Parse voice settings (e.g., { "1": "voice1", "2": "voice2" })
+  let speakerVoices: Record<string, string> = {};
+  try {
+    if (typeof voiceSettings === "string") speakerVoices = JSON.parse(voiceSettings);
+    else if (voiceSettings) speakerVoices = voiceSettings;
+  } catch { /* skip */ }
 
   for (let i = 0, done = 0; i < subtitles.length; i++) {
     const sub = subtitles[i];
@@ -202,6 +244,15 @@ async function performDubbing(
     done++;
     const pct = 70 + Math.round((done / total) * 18);
     emitProgress(projectId, { step: "dubbing", percent: pct, message: `TTS: ${done}/${total} segment` });
+
+    // Pick voice for this speaker
+    let voiceId = defaultVoiceId;
+    if (sub.speaker_id && speakerVoices[sub.speaker_id]) {
+      voiceId = speakerVoices[sub.speaker_id];
+    } else if (sub.speaker_id === 2 && !voiceId) {
+      // Automatic fallback for Speaker 2 if no settings exist
+      voiceId = "2EiwWnXFnvU5JabPnv8n"; // Clyde (male)
+    }
 
     await generateTTSSegment(sub.translatedText, rawPath, targetLang, projectId, i, voiceId);
 

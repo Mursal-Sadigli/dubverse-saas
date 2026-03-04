@@ -1,4 +1,4 @@
-export type ProjectStatus = "uploading" | "transcribing" | "translating" | "dubbing" | "completed" | "failed";
+export type ProjectStatus = "uploading" | "transcribing" | "translating" | "dubbing" | "completed" | "failed" | "cancelled";
 
 export type TargetLanguage = {
   code: string;
@@ -12,6 +12,7 @@ export type Subtitle = {
   end: number;   // seconds
   text: string;
   translatedText?: string;
+  speaker_id?: number;
 };
 
 export type Project = {
@@ -28,6 +29,8 @@ export type Project = {
   subtitles: Subtitle[];
   createdAt: string;
   updatedAt: string;
+  voiceId?: string;
+  voiceSettings?: any;
   error?: string;
   youtubeUrl?: string;
   thumbnailUrl?: string;
