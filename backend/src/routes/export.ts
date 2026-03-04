@@ -24,22 +24,22 @@ router.get("/", requireAuth, async (req: Request, res: Response) => {
 
     if (format === "mp4") {
       const filePath = project.final_video_path;
-      if (!filePath || !existsSync(filePath)) {
+      if (!filePath) {
         res.status(404).json({ error: "Video file not found" });
         return;
       }
-      res.setHeader("Content-Disposition", `attachment; filename="${project.name}.mp4"`);
-      res.setHeader("Content-Type", "video/mp4");
-      createReadStream(filePath).pipe(res);
+      const { getSignedUrl } = await import("../lib/storage");
+      const signedUrl = await getSignedUrl(filePath, 600); // 10 min
+      res.redirect(signedUrl);
     } else if (format === "audio") {
       const filePath = project.dubbed_audio_path;
-      if (!filePath || !existsSync(filePath)) {
+      if (!filePath) {
         res.status(404).json({ error: "Audio file not found" });
         return;
       }
-      res.setHeader("Content-Disposition", `attachment; filename="${project.name}_audio.mp3"`);
-      res.setHeader("Content-Type", "audio/mpeg");
-      createReadStream(filePath).pipe(res);
+      const { getSignedUrl } = await import("../lib/storage");
+      const signedUrl = await getSignedUrl(filePath, 600); // 10 min
+      res.redirect(signedUrl);
     } else if (format === "srt") {
       // Generate SRT content from subtitles
       const { data: subs } = await (await import("../lib/supabase")).supabase

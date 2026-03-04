@@ -27,10 +27,13 @@ export default function ProjectPage() {
   const reconnectAttemptsRef = useRef(0);
   const MAX_RECONNECT = 5;
 
+  const [clerkToken, setClerkToken] = useState<string | null>(null);
+
   /* ── REST fetch (initial load and polling fallback) ── */
   const fetchProject = useCallback(async () => {
     try {
       const token = await getToken();
+      setClerkToken(token);
       const res = await fetch(`${API}/api/projects/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -52,6 +55,7 @@ export default function ProjectPage() {
     }
 
     const token = await getToken();
+    setClerkToken(token);
     const es = new EventSource(`${API}/api/projects/${id}/events?token=${token}`);
     eventSourceRef.current = es;
     reconnectAttemptsRef.current = 0;
@@ -89,6 +93,7 @@ export default function ProjectPage() {
     const fetchVoices = async () => {
       try {
         const token = await getToken();
+        setClerkToken(token);
         const res = await fetch(`${API}/api/voices`, { headers: { Authorization: `Bearer ${token}` } });
         if (res.ok) {
           const data = await res.json();
@@ -162,6 +167,7 @@ export default function ProjectPage() {
     setIsStarting(true);
     try {
       const token = await getToken();
+      setClerkToken(token);
       // Connect SSE FIRST so we don't miss early progress events
       await connectSSE();
       const res = await fetch(`${API}/api/transcribe`, {
@@ -184,6 +190,7 @@ export default function ProjectPage() {
     setIsCancelling(true);
     try {
       const token = await getToken();
+      setClerkToken(token);
       const res = await fetch(`${API}/api/projects/${id}/cancel`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -199,6 +206,7 @@ export default function ProjectPage() {
     setSpeakerVoices(newSettings);
     try {
       const token = await getToken();
+      setClerkToken(token);
       await fetch(`${API}/api/projects/${id}`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -212,7 +220,8 @@ export default function ProjectPage() {
     if (!project) return;
     try {
       const token = await getToken();
-      const res = await fetch(`${API}/api/video/${id}/srt`, {
+      setClerkToken(token);
+      const res = await fetch(`${API}/api/video/${id}/srt?token=${token}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -422,7 +431,7 @@ export default function ProjectPage() {
 
             {activeTab === "watch" && project.status === "completed" && (
               <div className="rounded-2xl overflow-hidden border bg-black aspect-video">
-                <video controls className="h-full w-full" src={`${API}/api/video/${id}`} />
+                <video controls className="h-full w-full" src={`${API}/api/video/${id}?token=${clerkToken}`} />
               </div>
             )}
 
@@ -445,7 +454,7 @@ export default function ProjectPage() {
                     </div>
                     {item.ok ? (
                       <Button size="sm" variant="secondary" className="rounded-xl gap-1.5" asChild>
-                        <a href={`${API}/api/export?projectId=${id}&format=${item.format}`}><Download className="size-3.5" /> Yüklə</a>
+                        <a href={`${API}/api/export?projectId=${id}&format=${item.format}&token=${clerkToken}`}><Download className="size-3.5" /> Yüklə</a>
                       </Button>
                     ) : (
                       <Button size="sm" variant="secondary" className="rounded-xl gap-1.5" disabled><Download className="size-3.5" /> Yüklə</Button>

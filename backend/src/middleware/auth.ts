@@ -2,8 +2,27 @@ import { Request, Response, NextFunction } from "express";
 import { getAuth, clerkClient } from "@clerk/express";
 import { supabase } from "../lib/supabase";
 
+function extractUserIdFromToken(token: string): string | null {
+  try {
+    const payload = JSON.parse(Buffer.from(token.split(".")[1], "base64url").toString());
+    return payload.sub || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
-  const { userId } = getAuth(req);
+  let userId: string | null = null;
+  
+  // Try getting userId from headers (standard)
+  const auth = getAuth(req);
+  userId = auth.userId;
+
+  // Fallback to query parameter token (for <video> and <a> tags)
+  if (!userId && req.query.token) {
+    userId = extractUserIdFromToken(req.query.token as string);
+  }
+
   if (!userId) {
     res.status(401).json({ error: "Unauthorized" });
     return;
