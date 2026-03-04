@@ -66,13 +66,11 @@ Analyze the provided numbered transcript and identify different speakers.
 Assign a numerical Speaker ID (1, 2, 3...) and estimate their gender (male/female).
 
 Strict Analysis Rules:
-1. Look for Names: If a speaker is called by a name (e.g., "John", "Leyla"), use it to infer gender.
-2. Look for Honorifics: Words like "Mr.", "Mrs.", "Xanım", "Bəy", "Müəllimə" (female teacher in AZ), "Müəllim" (male teacher in AZ) are definitive.
-3. Pronouns: In English/Russian transcript, check for "he/she" or gendered verb endings.
-4. Voice Context: Use the conversational flow to distinguish turns.
-5. If truly unsure, guess 'male' for deeper voices and 'female' for higher ones if described, otherwise default to context clues.
-
-Output ONLY the mapping in format: [n] SpeakerID Gender
+1. Look for Names & Titles: "Bəy", "Müəllim", "Mr." are male. "Xanım", "Müəllimə", "Mrs.", "Ms." are female.
+2. Analyze Social Context: Professional titles, address forms, and conversational role can provide clues.
+3. Language Clues: In gendered languages (RU, ES, FR), use verb endings or adjectives.
+4. Default Logic: If there is NO clue at all, guess 'male' for authoritative/narrative roles and 'female' for supportive/narrative roles, but prioritize 'unknown' logic if possible (defaulting to 'male' is statistically safer for generic narrators).
+5. Output ONLY the mapping in format: [n] SpeakerID Gender
 Example: [1] 1 male
 No extra text.`;
 

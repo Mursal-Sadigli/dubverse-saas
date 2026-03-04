@@ -279,15 +279,14 @@ async function performDubbing(
 
     // Pick voice for this speaker
     let voiceId = defaultVoiceId;
-    if (sub.speaker_id && speakerVoices[sub.speaker_id]) {
-        voiceId = speakerVoices[sub.speaker_id];
-    } else {
-        // Smart fallback based on detected gender (OpenAI voices)
-        if (sub.speaker_gender === 'male') {
-            voiceId = "onyx"; // Male
-        } else if (sub.speaker_gender === 'female') {
-            voiceId = "nova"; // Female
-        }
+    const sid = sub.speaker_id || 1;
+    
+    if (speakerVoices[sid]) {
+        voiceId = speakerVoices[sid];
+    } else if (sub.speaker_gender === 'male') {
+        voiceId = "onyx"; // OpenAI Male
+    } else if (sub.speaker_gender === 'female') {
+        voiceId = "nova"; // OpenAI Female
     }
 
     await generateTTSSegment(sub.translatedText, rawPath, targetLang, projectId, i, voiceId);
