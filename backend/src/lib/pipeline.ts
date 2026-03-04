@@ -174,7 +174,7 @@ async function prepareVideo(projectId: string, workDir: string, videoPath: strin
     logPipeline(projectId, `Downloading YouTube: ${url}`);
     emitProgress(projectId, { step: "uploading", percent: 15, message: "YouTube yüklənir..." });
     await execPromise(
-      `yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]" --extractor-args "youtube:player_client=web,android" --no-check-certificates --geo-bypass -o "${outPath}" "${url}" --max-filesize 500m`,
+      `yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]" --extractor-args "youtube:player_client=web,android" --no-check-certificates --geo-bypass --force-ipv4 --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" -o "${outPath}" "${url}" --max-filesize 500m`,
       { timeout: 5 * 60 * 1000 }
     );
     emitProgress(projectId, { step: "uploading", percent: 18, message: "Storage-a yüklənir..." });
