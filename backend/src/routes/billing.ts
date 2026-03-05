@@ -107,11 +107,12 @@ router.get("/sync", requireAuth, async (req: Request, res: Response) => {
       const activeSub = stripeSubs.data[0];
       console.log(`[auth-sync] Found active sub ${activeSub.id} for user ${userId}. Updating to Pro...`);
       
-      // Force update to Pro
+      // Force update to Pro and reset usage
       const { error } = await supabase.from("subscriptions").upsert({
         user_id: userId,
         plan: "pro",
         minutes_limit: 120,
+        minutes_used: 0, // Reset usage on sync!
         stripe_customer_id: customerId,
         stripe_subscription_id: activeSub.id,
         updated_at: new Date().toISOString(),
@@ -160,6 +161,7 @@ export const stripeWebhookHandler: RequestHandler = async (req: Request, res: Re
         user_id: userId,
         plan: "pro",
         minutes_limit: 120,
+        minutes_used: 0, // Reset usage on upgrade!
         stripe_customer_id: session.customer as string,
         stripe_subscription_id: session.subscription as string,
         updated_at: new Date().toISOString(),
