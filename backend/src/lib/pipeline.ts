@@ -269,6 +269,39 @@ async function performDubbing(
 
   const limit = pLimit(5); // Process 5 segments at once
 
+  // 1. Pre-calculate majority gender for each speaker using dual-text keyword scan
+  const speakerGenderVotes: Record<string, { male: number; female: number }> = {};
+  
+  subtitles.forEach(sub => {
+    if (!sub.translatedText && !sub.text) return;
+    const sid = String(sub.speaker_id || 1);
+    if (!speakerGenderVotes[sid]) speakerGenderVotes[sid] = { male: 0, female: 0 };
+
+    const combinedText = ((sub.text || "") + " " + (sub.translatedText || "")).toLowerCase();
+    
+    // Expanded Keywords
+    const maleKws = ["bəy", "müəllim", "oğlan", "kişi", "dayı", "əmi", "qardaş", "adam", "mr.", "sir", "father", "son", "boy", "man"];
+    const femaleKws = ["xanım", "müəllimə", "qız", "qadın", "bacı", "ana", "bibi", "xala", "mrs.", "ms.", "lady", "mother", "daughter", "girl", "woman"];
+
+    let detected: "male" | "female" | null = null;
+    if (maleKws.some(kw => combinedText.includes(kw))) detected = "male";
+    if (femaleKws.some(kw => combinedText.includes(kw))) detected = "female";
+
+    // Use AI diarization hint if no keyword found
+    if (!detected && sub.speaker_gender) {
+        detected = (sub.speaker_gender === 'male' || sub.speaker_gender === 'female') ? sub.speaker_gender : null;
+    }
+
+    if (detected) speakerGenderVotes[sid][detected]++;
+  });
+
+  const finalSpeakerGenders: Record<string, "male" | "female"> = {};
+  Object.entries(speakerGenderVotes).forEach(([sid, votes]) => {
+    finalSpeakerGenders[sid] = votes.male >= votes.female ? "male" : "female";
+  });
+
+  console.log(`[DUBBING:${projectId}] Speaker Gender Map (Majority Vote):`, JSON.stringify(finalSpeakerGenders));
+
   const dubTasks = subtitles.map((sub, i) => {
     if (!sub.translatedText) return null;
 
@@ -276,7 +309,7 @@ async function performDubbing(
       const rawPath = join(segDir, `seg_${i}_raw.mp3`);
       const finalPath = join(segDir, `seg_${i}.mp3`);
 
-      // 1. Map legacy ElevenLabs IDs to OpenAI
+      // 2. Map legacy ElevenLabs IDs to OpenAI
       const LEGACY_MAP: Record<string, string> = {
         "2EiwWnXFnvU5JabPnv8n": "onyx",
         "21m00Tcm4TlvDq8ikWAM": "nova",
@@ -294,19 +327,12 @@ async function performDubbing(
 
       const sid = String(sub.speaker_id || 1);
       const manualVoice = getCleanVoice(speakerVoices[sid]);
-      let voiceId = manualVoice || getCleanVoice(defaultVoiceId) || "nova";
+      
+      // Default based on majority gender
+      const majorityGender = finalSpeakerGenders[sid] || "female";
+      let voiceId = manualVoice || getCleanVoice(defaultVoiceId) || (majorityGender === "male" ? "onyx" : "nova");
 
-      const text = sub.translatedText.toLowerCase();
-      const maleKeywords = ["bəy", "müəllim", "oğlan", "kişi", "dayı", "əmi", "qardaş", "adam", "mr.", "sir"];
-      const hasMaleKeyword = maleKeywords.some(kw => text.includes(kw));
-
-      if (!manualVoice) {
-          if (sub.speaker_gender === 'male' || hasMaleKeyword) {
-              voiceId = "onyx"; 
-          } else if (sub.speaker_gender === 'female') {
-              voiceId = "nova";
-          }
-      }
+      console.log(`[DUBBING:${projectId}] Seg ${i} | Speaker: ${sid} | MajorityGender: ${majorityGender} | FinalVoice: ${voiceId}`);
 
       await generateTTSSegment(sub.translatedText, rawPath, targetLang, projectId, i, voiceId);
 

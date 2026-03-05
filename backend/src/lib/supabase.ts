@@ -64,6 +64,7 @@ export async function createProject(input: {
 }
 
 export async function updateProject(id: string, fields: Record<string, any>) {
+  console.log(`[DB] Updating project ${id} with:`, JSON.stringify(fields));
   // Map camelCase to snake_case for Supabase columns
   const mapped: Record<string, any> = {};
   const camelToSnake: Record<string, string> = {
@@ -80,10 +81,17 @@ export async function updateProject(id: string, fields: Record<string, any>) {
   };
   for (const [k, v] of Object.entries(fields)) {
     if (k === "subtitles") continue; // handled separately
-    mapped[camelToSnake[k] ?? k] = v;
+    const mappedKey = camelToSnake[k] ?? k;
+    mapped[mappedKey] = v;
   }
+  
+  console.log(`[DB] Mapped update payload for ${id}:`, JSON.stringify(mapped));
   const { error } = await supabase.from("projects").update(mapped).eq("id", id);
-  if (error) throw error;
+  if (error) {
+    console.error(`[DB] Update error for project ${id}:`, error);
+    throw error;
+  }
+  console.log(`[DB] Project ${id} updated successfully`);
 
   // Handle subtitles separately (bulk upsert)
   if (fields.subtitles) {
