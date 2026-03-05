@@ -39,12 +39,16 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   // Track subscription details
   let sub = { plan: "free", minutes_used: 0, minutes_limit: 20 };
   try {
-    const { data } = await supabase.from("subscriptions").select("*").eq("user_id", userId).single();
-    if (data) sub = { plan: data.plan, minutes_used: data.minutes_used, minutes_limit: data.minutes_limit };
-  } catch (err: any) {
-    if (err.code !== 'PGRST116') { // PGRST116 is not found, which is fine
-      console.error("[auth] Subscription fetch error:", err.message);
+    const { data, error } = await supabase.from("subscriptions").select("*").eq("user_id", userId).single();
+    if (error && error.code !== 'PGRST116') {
+      console.error(`[auth] Supabase error for ${userId}:`, error.message);
     }
+    if (data) {
+      sub = { plan: data.plan, minutes_used: data.minutes_used, minutes_limit: data.minutes_limit };
+    }
+    console.log(`[auth] User: ${userId} | Plan: ${sub.plan} | Limit: ${sub.minutes_limit} | Used: ${sub.minutes_used}`);
+  } catch (err: any) {
+    console.error(`[auth] Unexpected subscription fetch error:`, err.message);
   }
 
   // Prevent actions if limit is reached (only for POST/PUT/DELETE requests)

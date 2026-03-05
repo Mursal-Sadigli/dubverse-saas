@@ -77,23 +77,28 @@ router.post("/webhook", async (req: Request, res: Response) => {
   let event: Stripe.Event;
 
   try {
+    console.log(`[STRIPE-WEBHOOK] Received event. Sig present: ${!!sig}, Secret present: ${!!process.env.STRIPE_WEBHOOK_SECRET}`);
+    
     event = stripe.webhooks.constructEvent(
       req.body,           // raw body (must be mounted with express.raw)
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (err: any) {
-    console.error("Stripe webhook signature error:", err.message);
+    console.error("[STRIPE-WEBHOOK] Signature error:", err.message);
     res.status(400).json({ error: "Invalid signature" });
     return;
   }
 
+  console.log(`[STRIPE-WEBHOOK] Event Type: ${event.type}`);
+
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const userId = session.metadata?.userId;
+    console.log(`[STRIPE-WEBHOOK] Completed session for userId: ${userId}`);
 
     if (userId) {
-      await supabase.from("subscriptions").upsert({
+      const { error } = await supabase.from("subscriptions").upsert({
         user_id: userId,
         plan: "pro",
         minutes_limit: 120,
@@ -101,24 +106,44 @@ router.post("/webhook", async (req: Request, res: Response) => {
         stripe_subscription_id: session.subscription as string,
         updated_at: new Date().toISOString(),
       }, { onConflict: "user_id" });
+
+      if (error) {
+        console.error(`[STRIPE-WEBHOOK] Database error during upsert:`, error.message);
+      } else {
+        console.log(`[STRIPE-WEBHOOK] Successfully upgraded user ${userId} to Pro`);
+      }
+    } else {
+      console.warn(`[STRIPE-WEBHOOK] No userId found in session metadata!`);
     }
   }
 
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
-    const { data: existing } = await supabase
+    console.log(`[STRIPE-WEBHOOK] Subscription deleted: ${sub.id}`);
+
+    const { data: existing, error: fetchErr } = await supabase
       .from("subscriptions")
       .select("user_id")
       .eq("stripe_subscription_id", sub.id)
       .single();
 
+    if (fetchErr) {
+      console.error(`[STRIPE-WEBHOOK] Error finding subscription for deletion:`, fetchErr.message);
+    }
+
     if (existing) {
-      await supabase.from("subscriptions").update({
+      const { error: updateErr } = await supabase.from("subscriptions").update({
         plan: "free",
         minutes_limit: 20,
         stripe_subscription_id: null,
         updated_at: new Date().toISOString(),
       }).eq("user_id", existing.user_id);
+
+      if (updateErr) {
+        console.error(`[STRIPE-WEBHOOK] Error updating record on deletion:`, updateErr.message);
+      } else {
+        console.log(`[STRIPE-WEBHOOK] Successfully downgraded user ${existing.user_id} back to free`);
+      }
     }
   }
 
