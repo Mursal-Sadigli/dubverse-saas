@@ -53,12 +53,20 @@ export async function generateTTSSegment(
 
   // Attempt 2: Google Translate TTS (100% Free Fallback)
   try {
-    console.log(`[TTS:${projectId}] Seg ${index} FALLBACK: Using Google Translate TTS (voice: ${selectedVoice})`);
-    const encoded = encodeURIComponent(text.substring(0, 200)); 
+    const cleanText = text.substring(0, 200).replace(/["']/g, ""); // Limit length and clean
+    console.log(`[TTS:${projectId}] Seg ${index} FALLBACK: Using Google Translate TTS (TL: ${lang})`);
+    
+    const encoded = encodeURIComponent(cleanText);
     const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encoded}&tl=${lang}&client=tw-ob`;
     
-    const response = await fetch(googleUrl);
-    if (!response.ok) throw new Error(`Google TTS failed: ${response.status}`);
+    const response = await fetch(googleUrl, {
+      headers: { "User-Agent": "Mozilla/5.0" }
+    });
+    
+    if (!response.ok) {
+      const gErr = await response.text();
+      throw new Error(`Google TTS failed (${response.status}): ${gErr.substring(0, 50)}`);
+    }
     
     const arrayBuffer = await response.arrayBuffer();
     await saveBufferToFile(Buffer.from(arrayBuffer), outputPath);
