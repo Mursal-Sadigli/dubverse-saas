@@ -10,6 +10,7 @@ import { generateTTSSegment } from "./tts";
 import { transcribeAudio, translateText } from "./ai";
 import { emitProgress } from "./emitter";
 import { uploadFile, downloadFile } from "./storage";
+import pLimit from "p-limit";
 
 const execPromise = promisify(exec);
 
@@ -256,8 +257,8 @@ async function performDubbing(
   if (!existsSync(segDir)) mkdirSync(segDir, { recursive: true });
 
   interface SegInfo { audioPath: string; start: number; end: number }
-  const segmentPaths: SegInfo[] = [];
   const total = subtitles.filter(s => s.translatedText).length;
+  let done = 0;
 
   // Parse voice settings (e.g., { "1": "voice1", "2": "voice2" })
   let speakerVoices: Record<string, string> = {};
@@ -266,65 +267,71 @@ async function performDubbing(
     else if (voiceSettings) speakerVoices = voiceSettings;
   } catch { /* skip */ }
 
-  for (let i = 0, done = 0; i < subtitles.length; i++) {
-    const sub = subtitles[i];
-    if (!sub.translatedText) continue;
+  const limit = pLimit(5); // Process 5 segments at once
 
-    const rawPath = join(segDir, `seg_${i}_raw.mp3`);
-    const finalPath = join(segDir, `seg_${i}.mp3`);
+  const dubTasks = subtitles.map((sub, i) => {
+    if (!sub.translatedText) return null;
 
-    done++;
-    const pct = 70 + Math.round((done / total) * 18);
-    emitProgress(projectId, { step: "dubbing", percent: pct, message: `TTS: ${done}/${total} segment` });
+    return limit(async () => {
+      const rawPath = join(segDir, `seg_${i}_raw.mp3`);
+      const finalPath = join(segDir, `seg_${i}.mp3`);
 
-    // 1. Map legacy ElevenLabs IDs to OpenAI
-    const LEGACY_MAP: Record<string, string> = {
-      "2EiwWnXFnvU5JabPnv8n": "onyx",  // Clyde -> Onyx (Male)
-      "21m00Tcm4TlvDq8ikWAM": "nova",   // Rachel -> Nova (Female)
-      "AZnzlk1Xhk9WOUz36v9y": "onyx",  // Nicole -> Onyx (Male)
-      "EXAVITQu4vr4xnSDxMaL": "nova",   // Sarah -> Nova (Female)
-      "ErXw9S1S9.5t9m8t": "onyx",      // Antoni -> Onyx (Male)
-    };
+      // 1. Map legacy ElevenLabs IDs to OpenAI
+      const LEGACY_MAP: Record<string, string> = {
+        "2EiwWnXFnvU5JabPnv8n": "onyx",
+        "21m00Tcm4TlvDq8ikWAM": "nova",
+        "AZnzlk1Xhk9WOUz36v9y": "onyx",
+        "EXAVITQu4vr4xnSDxMaL": "nova",
+        "ErXw9S1S9.5t9m8t": "onyx",
+      };
 
-    const getCleanVoice = (vid?: string) => {
-        if (!vid) return null;
-        if (LEGACY_MAP[vid]) return LEGACY_MAP[vid];
-        // If it looks like an ElevenLabs ID (long alphanumeric), default to gender-safe OpenAI
-        if (vid.length > 15) return null; 
-        return vid;
-    };
+      const getCleanVoice = (vid?: string) => {
+          if (!vid) return null;
+          if (LEGACY_MAP[vid]) return LEGACY_MAP[vid];
+          if (vid && vid.length > 15) return null; 
+          return vid;
+      };
 
-    // Pick voice for this speaker
-    let voiceId = getCleanVoice(defaultVoiceId) || "nova";
-    const sid = String(sub.speaker_id || 1);
-    
-    // Check if user manually selected a voice in the UI
-    const manualVoice = getCleanVoice(speakerVoices[sid]);
-    
-    if (manualVoice) {
-        voiceId = manualVoice;
-    } else if (sub.speaker_gender === 'male') {
-        voiceId = "onyx"; // Male
-    } else if (sub.speaker_gender === 'female') {
-        voiceId = "nova"; // Female
-    }
+      const sid = String(sub.speaker_id || 1);
+      const manualVoice = getCleanVoice(speakerVoices[sid]);
+      let voiceId = manualVoice || getCleanVoice(defaultVoiceId) || "nova";
 
-    await generateTTSSegment(sub.translatedText, rawPath, targetLang, projectId, i, voiceId);
+      const text = sub.translatedText.toLowerCase();
+      const maleKeywords = ["bəy", "müəllim", "oğlan", "kişi", "dayı", "əmi", "qardaş", "adam", "mr.", "sir"];
+      const hasMaleKeyword = maleKeywords.some(kw => text.includes(kw));
 
-    const originalWindow = sub.end - sub.start;
-    const ttsDuration = await getAudioDuration(rawPath);
+      if (!manualVoice) {
+          if (sub.speaker_gender === 'male' || hasMaleKeyword) {
+              voiceId = "onyx"; 
+          } else if (sub.speaker_gender === 'female') {
+              voiceId = "nova";
+          }
+      }
 
-    if (ttsDuration > 0 && originalWindow > 0.2) {
-      const stretchedPath = join(segDir, `seg_${i}_stretched.mp3`);
-      await stretchAudio(rawPath, stretchedPath, ttsDuration, originalWindow, projectId, i);
-      const src = existsSync(stretchedPath) ? stretchedPath : rawPath;
-      await execPromise(`"${getFfmpegBin()}" -i "${src}" -y "${finalPath}"`, { timeout: 30000 });
-    } else {
-      await execPromise(`"${getFfmpegBin()}" -i "${rawPath}" -y "${finalPath}"`, { timeout: 30000 });
-    }
+      await generateTTSSegment(sub.translatedText, rawPath, targetLang, projectId, i, voiceId);
 
-    if (existsSync(finalPath)) segmentPaths.push({ audioPath: finalPath, start: sub.start, end: sub.end });
-  }
+      const originalWindow = sub.end - sub.start;
+      const ttsDuration = await getAudioDuration(rawPath);
+
+      if (ttsDuration > 0 && originalWindow > 0.2) {
+        const stretchedPath = join(segDir, `seg_${i}_stretched.mp3`);
+        await stretchAudio(rawPath, stretchedPath, ttsDuration, originalWindow, projectId, i);
+        const src = existsSync(stretchedPath) ? stretchedPath : rawPath;
+        await execPromise(`"${getFfmpegBin()}" -i "${src}" -y "${finalPath}"`, { timeout: 30000 });
+      } else {
+        await execPromise(`"${getFfmpegBin()}" -i "${rawPath}" -y "${finalPath}"`, { timeout: 30000 });
+      }
+
+      done++;
+      const pct = 70 + Math.round((done / total) * 18);
+      emitProgress(projectId, { step: "dubbing", percent: pct, message: `TTS: ${done}/${total} segment` });
+
+      return { audioPath: finalPath, start: sub.start, end: sub.end };
+    });
+  });
+
+  const results = await Promise.all(dubTasks);
+  const segmentPaths = results.filter((r): r is SegInfo => r !== null && existsSync(r.audioPath));
 
   if (segmentPaths.length === 0) throw new Error("No dubbed segments were generated");
 
