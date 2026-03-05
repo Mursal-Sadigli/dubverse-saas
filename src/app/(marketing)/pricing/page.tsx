@@ -49,6 +49,28 @@ export default function PricingPage() {
     }
   };
 
+  const handleSync = async () => {
+    setLoading(true);
+    try {
+      const token = await getToken();
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/billing/sync`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      
+      if (data.status === "synced_pro") {
+        alert("Təbriklər! Hesabınız Pro-ya keçdi. İndi istifadə edə bilərsiniz.");
+        window.location.href = "/dashboard";
+      } else {
+        alert(`Status: ${data.status}. Aktiv abunəlik tapılmadı. Əgər ödəniş etmisinizsə, bir neçə dəqiqə gözləyib yenidən yoxlayın.`);
+      }
+    } catch (err: any) {
+      alert(`Yeniləmə xətası: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center py-20 px-4">
       <div className="text-center mb-16">
@@ -106,6 +128,20 @@ export default function PricingPage() {
           </button>
         </div>
       </div>
+
+      {/* Troubleshooting */}
+      {isSignedIn && (
+        <div className="mt-20 pt-10 border-t border-white/10 w-full max-w-2xl text-center">
+          <p className="text-gray-500 mb-4">Ödəniş etmisiniz amma limit hələ də Free görsənir?</p>
+          <button 
+            onClick={handleSync}
+            disabled={loading}
+            className="text-white hover:text-purple-400 transition-colors underline underline-offset-4"
+          >
+            {loading ? "Yoxlanılır..." : "Hesab Statusunu Yenilə (Sync)"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

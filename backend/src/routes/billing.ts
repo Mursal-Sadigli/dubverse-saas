@@ -71,6 +71,64 @@ router.post("/checkout", requireAuth, async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/billing/sync — forces a sync with Stripe state (fallback if webhook fails)
+router.get("/sync", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const { data: userRecord } = await supabase.from("users").select("email").eq("id", userId).single();
+    const { data: sub } = await supabase.from("subscriptions").select("*").eq("user_id", userId).single();
+    
+    let customerId = sub?.stripe_customer_id;
+    const userEmail = userRecord?.email;
+
+    // Fallback: If no customerId in DB, look up by email in Stripe
+    if (!customerId && userEmail) {
+      console.log(`[auth-sync] No customerId for ${userId}, searching by email: ${userEmail}`);
+      const customers = await stripe.customers.list({ email: userEmail, limit: 1 });
+      if (customers.data.length > 0) {
+        customerId = customers.data[0].id;
+        console.log(`[auth-sync] Found customer in Stripe: ${customerId}`);
+      }
+    }
+
+    if (!customerId) {
+       res.json({ status: "no_stripe_record", plan: "free", reason: "Customer not found in Stripe yet" });
+       return;
+    }
+
+    // List active subscriptions for this customer
+    const stripeSubs = await stripe.subscriptions.list({
+      customer: customerId,
+      status: "active",
+      limit: 1,
+    });
+
+    if (stripeSubs.data.length > 0) {
+      const activeSub = stripeSubs.data[0];
+      console.log(`[auth-sync] Found active sub ${activeSub.id} for user ${userId}. Updating to Pro...`);
+      
+      // Force update to Pro
+      const { error } = await supabase.from("subscriptions").upsert({
+        user_id: userId,
+        plan: "pro",
+        minutes_limit: 120,
+        stripe_customer_id: customerId,
+        stripe_subscription_id: activeSub.id,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+
+      if (error) throw error;
+
+      res.json({ status: "synced_pro", plan: "pro", limit: 120 });
+    } else {
+      res.json({ status: "no_active_sub", plan: sub?.plan || "free", customerId });
+    }
+  } catch (err: any) {
+    console.error(`[auth-sync] Sync failed:`, err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Stripe webhook handler (Exported separately for index.ts)
 export const stripeWebhookHandler: RequestHandler = async (req: Request, res: Response) => {
   const sig = req.headers["stripe-signature"] as string;

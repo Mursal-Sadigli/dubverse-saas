@@ -57,8 +57,11 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   
   if (req.method !== 'GET' && !isBillingRoute && sub.minutes_used >= sub.minutes_limit) {
      res.status(403).json({ 
-       error: "Usage limit exceeded. Please upgrade your plan.",
-       limitReached: true 
+       error: `Usage limit exceeded (${sub.minutes_used}/${sub.minutes_limit} min). Please upgrade your plan.`,
+       limitReached: true,
+       usage: sub.minutes_used,
+       limit: sub.minutes_limit,
+       plan: sub.plan
      });
      return;
   }
