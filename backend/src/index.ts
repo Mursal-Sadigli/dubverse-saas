@@ -20,19 +20,22 @@ const PORT = process.env.PORT || 4000;
 
 const allowedOrigins = [
   "http://localhost:3000",
+  "https://dubversee.vercel.app",
   process.env.FRONTEND_URL,
 ].filter(Boolean) as string[];
 
-// Remove trailing slashes from allowed origins for exact matching
-const normalizedOrigins = allowedOrigins.map(origin => origin.replace(/\/$/, ""));
+// Remove trailing slashes and lowercase for robust matching
+const normalizedOrigins = allowedOrigins.map(origin => 
+  origin.toLowerCase().replace(/\/$/, "")
+);
 
 app.use(cors({
   origin: (origin, callback) => {
     // allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    const normalizedOrigin = origin.replace(/\/$/, "");
-    if (normalizedOrigins.indexOf(normalizedOrigin) !== -1 || process.env.NODE_ENV !== "production") {
+    const normalizedOrigin = origin.toLowerCase().replace(/\/$/, "");
+    if (normalizedOrigins.includes(normalizedOrigin) || process.env.NODE_ENV !== "production") {
       callback(null, true);
     } else {
       console.warn(`[CORS] Rejected origin: ${origin}. Allowed: ${normalizedOrigins.join(", ")}`);
