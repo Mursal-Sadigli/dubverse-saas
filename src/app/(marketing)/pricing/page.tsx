@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { Check } from "lucide-react";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
 export default function PricingPage() {
-  const { isSignedIn, getToken } = useAuth();
+  const { isSignedIn, user } = useUser();
+  const { getToken } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -19,22 +20,30 @@ export default function PricingPage() {
     setLoading(true);
     try {
       const token = await getToken();
+      const userEmail = user?.emailAddresses?.[0]?.emailAddress;
+      
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/billing/checkout`, {
         method: "POST",
         headers: {
            Authorization: `Bearer ${token}`,
            "Content-Type": "application/json"
         },
-        body: JSON.stringify({ returnUrl: window.location.origin })
+        body: JSON.stringify({ 
+          email: userEmail,
+          returnUrl: `${window.location.origin}` 
+        })
       });
+      
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
          console.error("No checkout url returned", data);
+         alert(`Xəta: ${data.error || "Ödəniş linki yaradıla bilmədi"}`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Upgrade failed:", err);
+      alert(`Sistem xətası: ${err.message}`);
     } finally {
       setLoading(false);
     }

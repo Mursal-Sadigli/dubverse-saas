@@ -40,12 +40,20 @@ router.post("/checkout", requireAuth, async (req: Request, res: Response) => {
     const userId = (req as any).userId;
     const { email, returnUrl } = req.body;
 
+    console.log(`[STRIPE] Creating checkout session for user: ${userId}, email: ${email}`);
+    console.log(`[STRIPE] Key status: ${process.env.STRIPE_SECRET_KEY ? "SET" : "MISSING"}`);
+    console.log(`[STRIPE] Price ID status: ${process.env.STRIPE_PRO_PRICE_ID ? "SET" : "MISSING"}`);
+
+    if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_PRO_PRICE_ID) {
+      throw new Error("Stripe configuration is missing (Secret Key or Price ID)");
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],
       line_items: [
         {
-          price: process.env.STRIPE_PRO_PRICE_ID!,
+          price: process.env.STRIPE_PRO_PRICE_ID,
           quantity: 1,
         },
       ],
@@ -55,8 +63,10 @@ router.post("/checkout", requireAuth, async (req: Request, res: Response) => {
       metadata: { userId },
     });
 
+    console.log(`[STRIPE] Session created successfully: ${session.url}`);
     res.json({ url: session.url });
   } catch (err: any) {
+    console.error(`[STRIPE] Checkout error:`, err.message);
     res.status(500).json({ error: err.message });
   }
 });
