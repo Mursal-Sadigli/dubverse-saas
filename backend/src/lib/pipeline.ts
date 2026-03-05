@@ -318,21 +318,32 @@ async function performDubbing(
         "ErXw9S1S9.5t9m8t": "onyx",
       };
 
-      const getCleanVoice = (vid?: string) => {
-          if (!vid) return null;
-          if (LEGACY_MAP[vid]) return LEGACY_MAP[vid];
-          if (vid && vid.length > 15) return null; 
-          return vid;
+      // 2. Edge TTS Voice Mapping (Free Neural Voices)
+      const getEdgeVoice = (lang: string, gender: "male" | "female") => {
+        const map: Record<string, { male: string; female: string }> = {
+          az: { female: "az-AZ-BanuNeural", male: "az-AZ-BabekNeural" },
+          tr: { female: "tr-TR-EmelNeural", male: "tr-TR-AhmetNeural" },
+          ru: { female: "ru-RU-SvetlanaNeural", male: "ru-RU-DmitryNeural" },
+          en: { female: "en-US-AvaNeural", male: "en-US-AndrewNeural" },
+          de: { female: "de-DE-KatjaNeural", male: "de-DE-ConradNeural" },
+          fr: { female: "fr-FR-DeniseNeural", male: "fr-FR-HenriNeural" },
+          es: { female: "es-ES-ElviraNeural", male: "es-ES-AlvaroNeural" },
+        };
+        const entry = map[lang] || map["en"];
+        return gender === "male" ? entry.male : entry.female;
       };
 
       const sid = String(sub.speaker_id || 1);
-      const manualVoice = getCleanVoice(speakerVoices[sid]);
-      
-      // Default based on majority gender
       const majorityGender = finalSpeakerGenders[sid] || "female";
-      let voiceId = manualVoice || getCleanVoice(defaultVoiceId) || (majorityGender === "male" ? "onyx" : "nova");
+      
+      // If user manually picked a voice (containing "-"), use it.
+      // Otherwise use our smart Edge TTS mapping.
+      const manualVoice = speakerVoices[sid] || defaultVoiceId;
+      const voiceId = (manualVoice && manualVoice.includes("-"))
+        ? manualVoice
+        : getEdgeVoice(targetLang, majorityGender);
 
-      console.log(`[DUBBING:${projectId}] Seg ${i} | Speaker: ${sid} | MajorityGender: ${majorityGender} | FinalVoice: ${voiceId}`);
+      console.log(`[DUBBING:${projectId}] Seg ${i} | Speaker: ${sid} | Gender: ${majorityGender} | Voice: ${voiceId}`);
 
       await generateTTSSegment(sub.translatedText, rawPath, targetLang, projectId, i, voiceId);
 

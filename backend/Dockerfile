@@ -1,9 +1,9 @@
 # Use a Node base image
 FROM node:20-slim
 
-# Install FFmpeg, Python (for yt-dlp), and yt-dlp
+# Install FFmpeg, Python (for yt-dlp), and Azure SDK deps
 RUN apt-get update && \
-    apt-get install -y ffmpeg python3 curl && \
+    apt-get install -y ffmpeg python3 curl libasound2 libcurl4 libssl-dev libcap2 && \
     curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
     chmod a+rx /usr/local/bin/yt-dlp && \
     apt-get clean && \
