@@ -27,7 +27,7 @@ export async function getProject(id: string) {
 export async function getProjectsByUser(userId: string) {
   const { data, error } = await supabase
     .from("projects")
-    .select("*, subtitles(*)")
+    .select("*") // Subtitles removed from here to optimize list view
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
   if (error) throw error;

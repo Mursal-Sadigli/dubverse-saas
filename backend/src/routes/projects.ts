@@ -9,8 +9,12 @@ const id = (req: Request) => req.params.id as string;
 router.get("/", requireAuth, async (req: Request, res: Response) => {
   try {
     const rows = await getProjectsByUser((req as any).userId);
-    res.json({ projects: rows.map(mapProject) });
-  } catch (err: any) { res.status(500).json({ error: err.message }); }
+    const projects = (rows || []).map(mapProject);
+    res.json({ projects });
+  } catch (err: any) { 
+    console.error("[projects] List fetch error:", err.message);
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 // GET /api/projects/:id
