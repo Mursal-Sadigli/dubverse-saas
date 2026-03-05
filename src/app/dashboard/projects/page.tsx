@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ProjectCard from "@/components/ProjectCard";
 import { Project } from "@/lib/types";
+import { useAuth } from "@clerk/nextjs";
 import { 
   Search, 
   Filter, 
@@ -18,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 
 export default function ProjectsPage() {
   const router = useRouter();
+  const { getToken } = useAuth();
   
   const [projects, setProjects] = useState<Project[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -26,7 +28,10 @@ export default function ProjectsPage() {
   const fetchProjects = async () => {
     try {
       const { API } = await import("@/lib/constants");
-      const res = await fetch(`${API}/api/projects`);
+      const token = await getToken();
+      const res = await fetch(`${API}/api/projects`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (res.ok) {
         const data = await res.json();
         setProjects(data.projects || []);

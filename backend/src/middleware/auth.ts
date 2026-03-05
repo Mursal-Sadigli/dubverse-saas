@@ -19,14 +19,21 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   userId = auth.userId;
 
   // Fallback to query parameter token (for <video> and <a> tags)
-  if (!userId && req.query.token) {
-    userId = extractUserIdFromToken(req.query.token as string);
+  const queryToken = req.query.token as string;
+  if (!userId && queryToken) {
+    userId = extractUserIdFromToken(queryToken);
   }
 
   if (!userId) {
+    const authHeader = req.headers.authorization;
+    console.warn(`[auth] 401 Unauthorized. Path: ${req.path}. Method: ${req.method}`);
+    console.warn(`[auth] Auth Header: ${authHeader ? `Present (${authHeader.substring(0, 15)}...)` : "Missing"}`);
+    console.warn(`[auth] Query Token: ${queryToken ? `Present (${queryToken.substring(0, 15)}...)` : "Missing"}`);
+    
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+  
   (req as any).userId = userId;
 
   // Track subscription details
