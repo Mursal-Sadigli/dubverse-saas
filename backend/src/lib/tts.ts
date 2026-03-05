@@ -18,6 +18,8 @@ export async function generateTTSSegment(
   console.log(`[TTS:${projectId}] Seg ${index}: Requesting voice "${selectedVoice}" for text: "${text.substring(0, 30)}..."`);
   logPipeline(projectId, `TTS seg ${index} [${selectedVoice}]: "${text.substring(0, 50)}"`);
 
+  let lastOpenAIError = "";
+
   // Attempt 1: OpenAI (Premium Quality)
   if (apiKey) {
     try {
@@ -41,40 +43,47 @@ export async function generateTTSSegment(
         console.log(`[TTS:${projectId}] Seg ${index} SUCCESS (OpenAI - ${selectedVoice})`);
         return;
       } else {
-        const errText = await response.text();
-        console.error(`[TTS:${projectId}] Seg ${index} OpenAI FAILED (${response.status}): ${errText}`);
-        logPipeline(projectId, `⚠️ OpenAI failed (${response.status}), falling back to Google...`);
+        const errJson = await response.json().catch(() => ({ error: { message: "OpenAI unknown error" } }));
+        lastOpenAIError = errJson.error?.message || `Status ${response.status}`;
+        console.error(`[TTS:${projectId}] Seg ${index} OpenAI FAILED: ${lastOpenAIError}`);
+        logPipeline(projectId, `⚠️ OpenAI failed: ${lastOpenAIError}, trying Google fallback...`);
       }
     } catch (err: any) {
-      console.error(`[TTS:${projectId}] Seg ${index} OpenAI Error:`, err.message);
-      logPipeline(projectId, `⚠️ OpenAI error, falling back to Google...`);
+      lastOpenAIError = err.message;
+      console.error(`[TTS:${projectId}] Seg ${index} OpenAI Exception:`, err.message);
+      logPipeline(projectId, `⚠️ OpenAI exception, trying Google fallback...`);
     }
   }
 
   // Attempt 2: Google Translate TTS (100% Free Fallback)
   try {
     const cleanText = text.substring(0, 200).replace(/["']/g, ""); // Limit length and clean
-    console.log(`[TTS:${projectId}] Seg ${index} FALLBACK: Using Google Translate TTS (TL: ${lang})`);
+    console.log(`[TTS:${projectId}] Seg ${index} FALLBACK: Using Google Translate (AZ/TR/RU support)`);
     
+    // Use the most reliable endpoint with tw-ob client
     const encoded = encodeURIComponent(cleanText);
-    const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encoded}&tl=${lang}&client=tw-ob`;
+    const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encoded}&tl=${lang}&client=tw-ob&ttsspeed=1`;
     
     const response = await fetch(googleUrl, {
-      headers: { "User-Agent": "Mozilla/5.0" }
+      headers: { 
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Referer": "https://translate.google.com/"
+      }
     });
     
     if (!response.ok) {
-      const gErr = await response.text();
-      throw new Error(`Google TTS failed (${response.status}): ${gErr.substring(0, 50)}`);
+        throw new Error(`Google code ${response.status}`);
     }
     
     const arrayBuffer = await response.arrayBuffer();
     await saveBufferToFile(Buffer.from(arrayBuffer), outputPath);
-    logPipeline(projectId, `Seg ${index} done (Google Fallback) 🌐`);
+    logPipeline(projectId, `Seg ${index} done (Fallback) 🌐`);
   } catch (err: any) {
-    console.error(`[TTS:${projectId}] Seg ${index} FATAL: All TTS failed`, err.message);
-    logPipeline(projectId, `❌ All TTS attempts failed for seg ${index}: ${err.message}`);
-    throw err;
+    // Both failed! Prioritize showing the OpenAI error because it's the "real" reason for low quality/failure
+    const finalError = lastOpenAIError ? `OpenAI error: ${lastOpenAIError}` : `TTS failed: ${err.message}`;
+    console.error(`[TTS:${projectId}] Seg ${index} FATAL: ${finalError}`);
+    logPipeline(projectId, `❌ ${finalError}`);
+    throw new Error(finalError);
   }
 }
 
