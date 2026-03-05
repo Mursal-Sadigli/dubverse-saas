@@ -47,10 +47,15 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     }
   }
 
-  // Prevent actions if limit is reached (only for POST/PUT/DELETE requests that cost usage)
-  // We'll apply this logic to the transcribe route separately, or just universally for now:
-  if (req.method !== 'GET' && sub.minutes_used >= sub.minutes_limit) {
-     res.status(403).json({ error: "Usage limit exceeded. Please upgrade your plan." });
+  // Prevent actions if limit is reached (only for POST/PUT/DELETE requests)
+  // EXCEPT for billing routes (so users can actually upgrade!)
+  const isBillingRoute = req.originalUrl.includes("/billing/");
+  
+  if (req.method !== 'GET' && !isBillingRoute && sub.minutes_used >= sub.minutes_limit) {
+     res.status(403).json({ 
+       error: "Usage limit exceeded. Please upgrade your plan.",
+       limitReached: true 
+     });
      return;
   }
   
