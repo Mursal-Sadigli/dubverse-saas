@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, RequestHandler } from "express";
 import Stripe from "stripe";
 import { requireAuth } from "../middleware/auth";
 import { supabase } from "../lib/supabase";
@@ -71,8 +71,8 @@ router.post("/checkout", requireAuth, async (req: Request, res: Response) => {
   }
 });
 
-// POST /api/webhooks/stripe — Stripe webhook handler
-router.post("/webhook", async (req: Request, res: Response) => {
+// Stripe webhook handler (Exported separately for index.ts)
+export const stripeWebhookHandler: RequestHandler = async (req: Request, res: Response) => {
   const sig = req.headers["stripe-signature"] as string;
   let event: Stripe.Event;
 
@@ -148,6 +148,6 @@ router.post("/webhook", async (req: Request, res: Response) => {
   }
 
   res.json({ received: true });
-});
+};
 
 export default router;

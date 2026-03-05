@@ -12,7 +12,7 @@ import exportRouter from "./routes/export";
 import videoRouter from "./routes/video";
 import subtitlesRouter from "./routes/subtitles";
 import voicesRouter from "./routes/voices";
-import billingRouter from "./routes/billing";
+import billingRouter, { stripeWebhookHandler } from "./routes/billing";
 import inngestRouter from "./routes/inngest";
 
 const app = express();
@@ -48,8 +48,9 @@ app.use(cors({
 // ── Raw body routes (must be BEFORE express.json) ──────────
 // Svix (Clerk) webhook needs raw body
 app.use("/api/webhooks", express.raw({ type: "application/json" }), webhooksRouter);
-// Stripe webhook needs raw body
-app.use("/api/billing/webhook", express.raw({ type: "application/json" }), billingRouter);
+
+// Stripe webhook needs raw body and MUST be handled before express.json()
+app.post("/api/billing/webhook", express.raw({ type: "application/json" }), stripeWebhookHandler);
 
 // ── JSON middleware + Clerk ─────────────────────────────────
 app.use(express.json());
