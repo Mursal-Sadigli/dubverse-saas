@@ -390,12 +390,13 @@ async function performDubbing(
     `[mixed]loudnorm=I=-23:TP=-1.5:LRA=11[out]`
   );
 
+  emitProgress(projectId, { step: "dubbing", percent: 88, message: "Audio fayllar birləşdirilir (ağır proses)..." });
   await runFfmpeg([
     ...inputs, "-filter_complex", filterParts.join(";"),
     "-map", "[out]", "-acodec", "libmp3lame", "-ar", "44100", "-b:a", "192k", "-y", dubbedAudioPath,
   ], projectId);
 
-  emitProgress(projectId, { step: "dubbing", percent: 88, message: "Dublaj storage-a yüklənir..." });
+  emitProgress(projectId, { step: "dubbing", percent: 89, message: "Dublaj storage-a yüklənir..." });
   const storagePath = `${projectId}/dubbed_audio.mp3`;
   await uploadFile(dubbedAudioPath, storagePath);
   await updateProject(projectId, { dubbedAudioPath: storagePath });
